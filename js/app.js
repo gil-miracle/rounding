@@ -158,13 +158,6 @@
 
     $('topbar').hidden = name === 'intro';
 
-    var current = SCREEN_ORDER.indexOf(name);
-    each($('steps').children, function (dot) {
-      var idx = SCREEN_ORDER.indexOf(dot.getAttribute('data-step'));
-      dot.classList.toggle('is-active', idx === current);
-      dot.classList.toggle('is-done', idx < current);
-    });
-
     updateNav();
     window.scrollTo(0, 0);
   }
@@ -684,6 +677,7 @@
 
     $('btnPrev').addEventListener('click', goPrev);
     $('btnNext').addEventListener('click', goNext);
+    $('btnBrand').addEventListener('click', restart);   // 가운데 로고 → 처음 화면으로
 
     // 키보드(← →)로도 이동 — 프로젝터/키오스크 운영용
     document.addEventListener('keydown', function (e) {
@@ -715,6 +709,7 @@
     var nav = CONFIG.nav || {};
     $('btnPrevLabel').textContent = nav.backLabel || '이전';
     $('btnNextLabel').textContent = nav.nextLabel || '다음';
+    $('btnBrand').textContent = nav.brand || 'MIRACLE';
 
     renderIntro();
     renderQuiz();

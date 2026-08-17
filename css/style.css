@@ -69,6 +69,14 @@ button {
 }
 button:disabled { cursor: default; }
 
+/* 마우스로 누른 뒤 검은 테두리가 남지 않도록.
+   키보드로 이동할 때만 파란 포커스 테두리를 보여준다. */
+button:focus { outline: none; }
+button:focus-visible {
+  outline: 3px solid rgba(59, 91, 253, .45);
+  outline-offset: 2px;
+}
+
 /* ------------------------------- 레이아웃 ------------------------------- */
 .app {
   display: flex;
@@ -130,39 +138,38 @@ button:disabled { cursor: default; }
 .navbtn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 3px;
   flex: none;
-  min-width: 88px;
-  padding: 9px 14px;
+  min-width: clamp(74px, 11vw, 96px);
+  padding: 9px 16px;
   border-radius: 999px;
   background: var(--c-surface);
   border: 1px solid var(--c-line);
   font-size: clamp(13px, 1.7vw, 15px);
   font-weight: 700;
   color: var(--c-muted);
-  transition: opacity .2s, background .2s, color .2s;
+  white-space: nowrap;
+  transition: opacity .2s, background .2s, color .2s, border-color .2s, transform .12s;
 }
-.navbtn:first-child { justify-content: flex-start; }
-.navbtn:last-child  { justify-content: flex-end; }
-.navbtn:hover:not(:disabled) { background: #eef1f8; color: var(--c-text); }
-.navbtn:disabled { opacity: .32; }
-.navbtn__arrow { font-size: 1.25em; line-height: 1; }
+.navbtn:hover:not(:disabled) { background: #eef1f8; border-color: #ccd3e2; color: var(--c-text); }
+.navbtn:active:not(:disabled) { transform: scale(.96); }
+.navbtn:disabled { opacity: .34; }
+.navbtn__arrow { font-size: 1.2em; line-height: 1; }
 
-.steps {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
+/* 가운데 로고 — 누르면 처음 화면으로 */
+.brand {
+  padding: 7px 14px;
+  border-radius: 12px;
+  font-size: clamp(15px, 2.2vw, 20px);
+  font-weight: 900;
+  letter-spacing: .16em;
+  color: var(--c-text);
+  white-space: nowrap;
+  transition: background .2s, color .2s, transform .12s;
 }
-
-.steps__dot {
-  width: clamp(26px, 4vw, 40px);
-  height: 4px;
-  border-radius: 99px;
-  background: var(--c-line);
-  transition: background .3s;
-}
-.steps__dot.is-done   { background: #b9c2d6; }
-.steps__dot.is-active { background: var(--c-primary); }
+.brand:hover  { background: rgba(59, 91, 253, .08); color: var(--c-primary); }
+.brand:active { transform: scale(.95); }
 
 /* -------------------------------- 공통 --------------------------------- */
 .eyebrow {
