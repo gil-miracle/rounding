@@ -94,8 +94,8 @@ var CONFIG = {
    * ------------------------------------------------------------------------ */
   ladder: {
     eyebrow: 'LADDER',
-    heading: '번호를 고르고 스타트!',
-    subheading: '위에서 번호 하나를 고른 뒤 스타트를 눌러주세요.',
+    heading: '스타트를 눌러주세요!',
+    subheading: '5개가 동시에 출발합니다. 어떤 상품인지는 도착하면 공개돼요.',
     lanes: 5,                                   // 위쪽 선택 칸 수 (= 아래쪽 칸 수)
     rows: 9,                                    // 가로 다리를 놓을 층 수 (많을수록 복잡)
     headLabels: ['1', '2', '3', '4', '5'],      // 위쪽에 적힐 번호
@@ -104,12 +104,13 @@ var CONFIG = {
       '#ff8a3d', '#3b5bfd', '#16a34a', '#e5484d', '#a855f7'
     ],
     tailLength: 90,                             // 원 뒤에 남는 잔상 길이(px)
-    autoStart: true,                            // true: 화면에 들어오면 아무것도 안 눌러도 출발
-    autoStartDelayMs: 800,                      // 들어온 뒤 출발까지 기다리는 시간(ms)
+    autoStart: false,                           // false: 스타트 버튼을 눌러야 출발
+                                                // true : 화면에 들어오면 아무것도 안 눌러도 출발
+    autoStartDelayMs: 800,                      // autoStart: true 일 때 출발까지 기다리는 시간(ms)
     traceMs: 2600,                              // 5개 원이 동시에 내려가는 시간(ms)
     mergeDelayMs: 260,                          // 도착 후 칸이 합쳐지기 시작할 때까지(ms)
     revealLead: '당신이 고른 상품은',            // 공개 카드 첫 줄
-    startLabel: '스타트',                        // autoStart: false 일 때만 보이는 버튼
+    startLabel: '스타트',
     nextLabel: '다음'
   },
 
