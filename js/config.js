@@ -36,121 +36,61 @@ var CONFIG = {
     correctDesc: '“그에게서 온 몸이 각 마디를 통하여 함께 연결되고…”',
     wrongTitle: '아쉬워요 😅',
     wrongDesc: '다시 한 번 골라볼까요?',
-    allowRetry: true,                           // true : 틀리면 정답을 맞출 때까지 다시 고르기
-                                                // false: 한 번에 판정하고 정답을 알려준 뒤 진행
+    allowRetry: true,                           // true : 맞출 때까지 다시 고르기
+                                                // false: 한 번에 판정하고 정답 공개 후 진행
     nextLabel: '다음'
   },
 
   /* ---------------------------------------------------------------------------
-   * 2-1. 상품 선택 화면 문구
+   * 3. 상품(상자) 선택 화면
+   *    상품 이름은 숨겨져 있고, 사다리 도착 후에 공개됩니다.
    * ------------------------------------------------------------------------ */
   prizeScreen: {
     eyebrow: 'PRIZE',
-    heading: '받고 싶은 상품을 골라주세요',
-    subheading: '고른 상품으로 사다리를 탑니다!',
+    heading: '상자 하나를 골라주세요',
+    subheading: '어떤 선물인지는 사다리를 다 타야 알 수 있어요!',
+    boxEmoji: '🎁',                             // 상자에 표시할 그림
+    boxLabels: ['1', '2', '3', '4', '5', '6'],  // 상자 번호
+    soldOutLabel: '품절',
+    allSoldOutMessage: '준비된 상품이 모두 소진되었어요. 운영자에게 문의해 주세요.',
     nextLabel: '선택 완료'
   },
 
   /* ---------------------------------------------------------------------------
-   * 3. 상품 선택 화면 (6지선다)
+   * 4. 상품 목록 (6개)
    *
-   *  · qrImage      : 이 상품의 기본 QR 이미지 (5칸 모두 같은 QR을 쓸 때)
-   *  · results      : 사다리 아래쪽 5칸. 반드시 ladder.lanes 개수와 같아야 합니다.
-   *      - label    : 칸이 벗겨졌을 때 보여줄 문구
-   *      - image    : 이 칸만 다른 QR을 쓰고 싶을 때 (생략하면 위 qrImage 사용)
-   *      - caption  : QR 아래 안내 문구 (생략 가능)
-   *      - win      : false 로 두면 QR 없이 "꽝" 처리
+   *   name     : 공개될 때 보여줄 상품 이름
+   *   emoji    : 공개될 때 이름 앞에 붙는 그림
+   *   note     : QR 아래 안내 문구
+   *   qrImage  : 이 상품의 QR 이미지 경로 (assets/qr/ 안의 파일을 교체하세요)
+   *   stock    : 준비한 수량. 이 숫자만큼만 나가고 0이 되면 선택할 수 없습니다.
+   *              수량 제한 없이 쓰려면 stock 줄을 지우세요.
    * ------------------------------------------------------------------------ */
   prizes: [
-    {
-      id: 'cafe',
-      emoji: '☕',
-      name: '카페 기프티콘',
-      note: '아메리카노 Tall',
-      qrImage: 'assets/qr/cafe.svg',
-      results: [
-        { label: '아메리카노 당첨!' },
-        { label: '아메리카노 당첨!' },
-        { label: '아메리카노 당첨!' },
-        { label: '아메리카노 당첨!' },
-        // 👇 꽝 칸 예시입니다. 모두 당첨으로 하려면 이 줄도 위와 똑같이 바꾸세요.
-        { label: '아쉽지만 꽝!', win: false, caption: '대신 컨퍼런스에서 만나요 🙌' }
-      ]
-    },
-    {
-      id: 'chicken',
-      emoji: '🍗',
-      name: '치킨 기프티콘',
-      note: '후라이드 한 마리',
-      qrImage: 'assets/qr/chicken.svg',
-      results: [
-        { label: '치킨 당첨!' },
-        { label: '치킨 당첨!' },
-        { label: '치킨 당첨!' },
-        { label: '치킨 당첨!' },
-        { label: '치킨 당첨!' }
-      ]
-    },
-    {
-      id: 'convenience',
-      emoji: '🏪',
-      name: '편의점 상품권',
-      note: '5,000원권',
-      qrImage: 'assets/qr/convenience.svg',
-      results: [
-        { label: '상품권 당첨!' },
-        { label: '상품권 당첨!' },
-        { label: '상품권 당첨!' },
-        { label: '상품권 당첨!' },
-        { label: '상품권 당첨!' }
-      ]
-    },
-    {
-      id: 'icecream',
-      emoji: '🍦',
-      name: '아이스크림',
-      note: '파인트 1개',
-      qrImage: 'assets/qr/icecream.svg',
-      results: [
-        { label: '아이스크림 당첨!' },
-        { label: '아이스크림 당첨!' },
-        { label: '아이스크림 당첨!' },
-        { label: '아이스크림 당첨!' },
-        { label: '아이스크림 당첨!' }
-      ]
-    },
-    {
-      id: 'burger',
-      emoji: '🍔',
-      name: '버거 세트',
-      note: '단품 + 음료',
-      qrImage: 'assets/qr/burger.svg',
-      results: [
-        { label: '버거 세트 당첨!' },
-        { label: '버거 세트 당첨!' },
-        { label: '버거 세트 당첨!' },
-        { label: '버거 세트 당첨!' },
-        { label: '버거 세트 당첨!' }
-      ]
-    },
-    {
-      id: 'culture',
-      emoji: '🎁',
-      name: '문화상품권',
-      note: '10,000원권',
-      qrImage: 'assets/qr/culture.svg',
-      results: [
-        { label: '문화상품권 당첨!' },
-        { label: '문화상품권 당첨!' },
-        { label: '문화상품권 당첨!' },
-        { label: '문화상품권 당첨!' },
-        { label: '문화상품권 당첨!' }
-      ]
-    }
+    { id: 'cafe',        emoji: '☕', name: '카페 기프티콘',  note: '아메리카노 Tall', qrImage: 'assets/qr/cafe.svg',        stock: 10 },
+    { id: 'chicken',     emoji: '🍗', name: '치킨 기프티콘',  note: '후라이드 한 마리', qrImage: 'assets/qr/chicken.svg',     stock: 10 },
+    { id: 'convenience', emoji: '🏪', name: '편의점 상품권',  note: '5,000원권',       qrImage: 'assets/qr/convenience.svg', stock: 10 },
+    { id: 'icecream',    emoji: '🍦', name: '아이스크림',     note: '파인트 1개',       qrImage: 'assets/qr/icecream.svg',    stock: 10 },
+    { id: 'burger',      emoji: '🍔', name: '버거 세트',      note: '단품 + 음료',      qrImage: 'assets/qr/burger.svg',      stock: 10 },
+    { id: 'culture',     emoji: '🎁', name: '문화상품권',     note: '10,000원권',      qrImage: 'assets/qr/culture.svg',     stock: 10 }
   ],
 
   /* ---------------------------------------------------------------------------
-   * 4. 사다리타기 화면
+   * 4-1. 수량 저장 (브라우저 localStorage)
+   *
+   *   · 이 기기(브라우저)에만 저장됩니다. 여러 대로 운영하면 기기마다 따로 셉니다.
+   *   · 수량을 처음부터 다시 세려면 주소 끝에 ?reset=1 을 붙여 한 번 열어주세요.
+   *     예) index.html?reset=1
+   *   · storageKey 를 바꿔도 초기화됩니다.
+   * ------------------------------------------------------------------------ */
+  stock: {
+    enabled: true,
+    storageKey: 'miracle-rounding-stock-v1'
+  },
+
+  /* ---------------------------------------------------------------------------
+   * 5. 사다리타기 화면
+   *    사다리 결과는 상품과 관계없는 연출입니다. 상품은 고른 상자로 이미 정해져 있어요.
    * ------------------------------------------------------------------------ */
   ladder: {
     eyebrow: 'LADDER',
@@ -158,17 +98,23 @@ var CONFIG = {
     subheading: '위에서 번호 하나를 고른 뒤 스타트를 눌러주세요.',
     lanes: 5,                                   // 위쪽 선택 칸 수 (= 아래쪽 칸 수)
     rows: 9,                                    // 가로 다리를 놓을 층 수 (많을수록 복잡)
-    headLabels: ['1', '2', '3', '4', '5'],      // 위쪽 버튼에 적힐 글자
+    headLabels: ['1', '2', '3', '4', '5'],      // 위쪽에 적힐 번호
     coverLabel: '?',                            // 가려진 아래칸에 적힐 글자
-    traceMs: 2600,                              // 5개 선이 동시에 내려가는 시간(ms)
+    colors: [                                   // 내려가는 원 5개의 색깔
+      '#ff8a3d', '#3b5bfd', '#16a34a', '#e5484d', '#a855f7'
+    ],
+    tailLength: 90,                             // 원 뒤에 남는 잔상 길이(px)
+    autoStart: true,                            // true: 화면에 들어오면 아무것도 안 눌러도 출발
+    autoStartDelayMs: 800,                      // 들어온 뒤 출발까지 기다리는 시간(ms)
+    traceMs: 2600,                              // 5개 원이 동시에 내려가는 시간(ms)
     mergeDelayMs: 260,                          // 도착 후 칸이 합쳐지기 시작할 때까지(ms)
-    shuffleResults: true,                       // true: 매 판마다 아래 칸 순서를 섞음
-    startLabel: '스타트',
+    revealLead: '당신이 고른 상품은',            // 공개 카드 첫 줄
+    startLabel: '스타트',                        // autoStart: false 일 때만 보이는 버튼
     nextLabel: '다음'
   },
 
   /* ---------------------------------------------------------------------------
-   * 4-1. 상단 이동 버튼
+   * 5-1. 상단 이동 버튼
    * ------------------------------------------------------------------------ */
   nav: {
     showBack: true,                             // 왼쪽 '이전' 버튼 표시
@@ -178,7 +124,7 @@ var CONFIG = {
   },
 
   /* ---------------------------------------------------------------------------
-   * 5. 엔딩 화면
+   * 6. 엔딩 화면
    * ------------------------------------------------------------------------ */
   ending: {
     title: '참여해 주셔서 감사합니다!',

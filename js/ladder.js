@@ -1,23 +1,15 @@
-﻿/* =============================================================================
+/* =============================================================================
  *  ladder.js — 사다리타기 로직 + SVG 그리기
+ *
+ *  · 5개 선이 동시에 출발해 같은 시간에 도착합니다.
+ *  · 선이 계속 남지 않고, 색깔 있는 원이 짧은 잔상만 남기며 내려갑니다.
  *  (내용 수정은 config.js 에서 하시면 됩니다. 이 파일은 동작 담당이에요.)
  * ========================================================================== */
 (function (global) {
   'use strict';
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
-
-  /* ---------------------------------------------------------------------------
-   * 배열 섞기 (Fisher–Yates)
-   * ------------------------------------------------------------------------ */
-  function shuffle(list) {
-    var arr = list.slice();
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-    }
-    return arr;
-  }
+  var TAIL_STEPS = 7;          // 잔상을 몇 조각으로 나눠 흐리게 할지
 
   /* ---------------------------------------------------------------------------
    * 가로 다리 만들기
@@ -91,14 +83,6 @@
 
   /* ---------------------------------------------------------------------------
    * LadderView — SVG 렌더링 + 애니메이션
-   *
-   *   new LadderView({
-   *     svg   : <svg> 엘리먼트,
-   *     board : <svg> 를 감싼 박스(크기 기준),
-   *     lanes : 기둥 수,
-   *     rows  : 층 수,
-   *     laneX : function(){ return [x0, x1, ...] }   // 기둥 중심 x좌표(px) 배열
-   *   })
    * ------------------------------------------------------------------------ */
   function LadderView(options) {
     this.svg = options.svg;
@@ -106,6 +90,8 @@
     this.lanes = options.lanes;
     this.rows = options.rows;
     this.laneXProvider = options.laneX;
+    this.colors = options.colors || [];
+    this.tailLength = options.tailLength || 80;
 
     this.rungs = [];
     this.padding = 8;
@@ -113,23 +99,22 @@
     this.height = 0;
 
     this._raf = null;
-    this._highlight = null;
     this._traceComplete = false;
+    this._lines = [];
 
     this.gStatic = document.createElementNS(SVG_NS, 'g');
     this.gTrace = document.createElementNS(SVG_NS, 'g');
     this.svg.appendChild(this.gStatic);
     this.svg.appendChild(this.gTrace);
-
-    this.tracePaths = [];
-    this.markers = [];
-    this._lines = [];
   }
+
+  LadderView.prototype.colorOf = function (lane) {
+    return this.colors[lane % (this.colors.length || 1)] || '#ff8a3d';
+  };
 
   /** 새 사다리 생성 (가로 다리 재배치) */
   LadderView.prototype.generate = function () {
     this.rungs = buildGoodRungs(this.lanes, this.rows);
-    this._highlight = null;
     this._traceComplete = false;
     this.render();
   };
@@ -185,79 +170,66 @@
       this.gStatic.appendChild(rung);
     }
 
-    /* --- 경로선 (기둥 수만큼) --- */
+    /* --- 잔상 + 머리(원) --- */
     while (this.gTrace.firstChild) this.gTrace.removeChild(this.gTrace.firstChild);
-    this.tracePaths = [];
-    this.markers = [];
+    this._lines = this._buildLines();
 
-    // 내 선이 항상 맨 위에 보이도록 나머지를 먼저 그린다
-    var order = [];
-    for (i = 0; i < this.lanes; i++) if (i !== this._highlight) order.push(i);
-    if (this._highlight !== null) order.push(this._highlight);
-
-    for (var k = 0; k < order.length; k++) {
-      var lane = order[k];
-      var mine = lane === this._highlight;
-
-      var path = document.createElementNS(SVG_NS, 'path');
-      path.setAttribute('class', 'ladder__trace' + (mine ? ' ladder__trace--mine' : ''));
-      path.setAttribute('fill', 'none');
-      path.setAttribute('d', '');
-
-      var marker = document.createElementNS(SVG_NS, 'circle');
-      marker.setAttribute('class', 'ladder__marker' + (mine ? ' ladder__marker--mine' : ''));
-      marker.setAttribute('r', mine ? 8 : 5);
-      marker.style.opacity = '0';
-
-      this.gTrace.appendChild(path);
-      this.gTrace.appendChild(marker);
-      this.tracePaths[lane] = path;
-      this.markers[lane] = marker;
-    }
-
-    // 이미 끝까지 내려간 상태라면 경로를 그대로 다시 그린다
-    if (this._traceComplete && this._highlight !== null) {
-      for (i = 0; i < this.lanes; i++) {
-        var pts = this.points(i);
-        var d = 'M' + round(pts[0].x) + ' ' + round(pts[0].y);
-        for (var p = 1; p < pts.length; p++) d += 'L' + round(pts[p].x) + ' ' + round(pts[p].y);
-        this.tracePaths[i].setAttribute('d', d);
-        var last = pts[pts.length - 1];
-        this.markers[i].setAttribute('cx', round(last.x));
-        this.markers[i].setAttribute('cy', round(last.y));
-        this.markers[i].style.opacity = '1';
-      }
-    }
-
-    // 애니메이션 도중에 다시 그렸다면(창 크기 변경 등) 새 요소·좌표로 갈아끼운다
-    if (this._raf) this._lines = this._buildLines();
+    if (this._traceComplete) this._drawAt(1);   // 끝난 상태면 도착 지점에 원만 표시
   };
 
   /** 경로별 좌표·길이·엘리먼트 묶음 만들기 */
   LadderView.prototype._buildLines = function () {
     var lines = [];
+
     for (var lane = 0; lane < this.lanes; lane++) {
       var pts = this.points(lane);
-      var lens = [];
+      var cum = [0];
       var total = 0;
       for (var i = 1; i < pts.length; i++) {
         var dx = pts[i].x - pts[i - 1].x;
         var dy = pts[i].y - pts[i - 1].y;
-        lens.push(Math.sqrt(dx * dx + dy * dy));
-        total += lens[lens.length - 1];
+        total += Math.sqrt(dx * dx + dy * dy);
+        cum.push(total);
       }
-      lines.push({
-        pts: pts, lens: lens, total: total || 1,
-        path: this.tracePaths[lane], marker: this.markers[lane]
-      });
-      this.markers[lane].style.opacity = '1';
-    }
-    return lines;
-  };
 
-  /** 출발 칸의 도착 칸 번호 */
-  LadderView.prototype.destination = function (start) {
-    return walk(this.rungs, start, this.rows).end;
+      var color = this.colorOf(lane);
+
+      // 잔상 조각 (머리에서 먼 쪽일수록 흐리게)
+      var tails = [];
+      for (var t = TAIL_STEPS - 1; t >= 0; t--) {
+        var seg = document.createElementNS(SVG_NS, 'path');
+        seg.setAttribute('class', 'ladder__tail');
+        seg.setAttribute('fill', 'none');
+        seg.setAttribute('stroke', color);
+        seg.setAttribute('stroke-opacity', (0.62 * (1 - t / TAIL_STEPS)).toFixed(3));
+        seg.setAttribute('stroke-width', round(3 + 3 * (1 - t / TAIL_STEPS)));
+        seg.setAttribute('d', '');
+        this.gTrace.appendChild(seg);
+        tails[t] = seg;
+      }
+
+      var glow = document.createElementNS(SVG_NS, 'circle');
+      glow.setAttribute('class', 'ladder__glow');
+      glow.setAttribute('r', 13);
+      glow.setAttribute('fill', color);
+      glow.setAttribute('fill-opacity', '.18');
+      glow.style.opacity = '0';
+      this.gTrace.appendChild(glow);
+
+      var head = document.createElementNS(SVG_NS, 'circle');
+      head.setAttribute('class', 'ladder__head-dot');
+      head.setAttribute('r', 7);
+      head.setAttribute('fill', color);
+      head.style.opacity = '0';
+      this.gTrace.appendChild(head);
+
+      lines.push({
+        pts: pts, cum: cum, total: total || 1,
+        tails: tails, glow: glow, head: head
+      });
+    }
+
+    return lines;
   };
 
   /** 출발 칸의 경로 좌표 배열 */
@@ -274,49 +246,83 @@
     return pts;
   };
 
-  /**
-   * 5개 선이 '동시에' 출발해서 같은 시간에 도착하는 애니메이션
-   * @param {number} highlight 내가 고른 칸 (강조 표시)
-   */
-  LadderView.prototype.trace = function (highlight, duration, onDone) {
+  /** 경로 위 거리 dist 지점의 좌표 */
+  function pointAt(line, dist) {
+    if (dist <= 0) return { x: line.pts[0].x, y: line.pts[0].y };
+    var last = line.pts[line.pts.length - 1];
+    if (dist >= line.total) return { x: last.x, y: last.y };
+
+    for (var i = 1; i < line.pts.length; i++) {
+      if (line.cum[i] < dist) continue;
+      var span = line.cum[i] - line.cum[i - 1];
+      var f = span === 0 ? 0 : (dist - line.cum[i - 1]) / span;
+      return {
+        x: line.pts[i - 1].x + (line.pts[i].x - line.pts[i - 1].x) * f,
+        y: line.pts[i - 1].y + (line.pts[i].y - line.pts[i - 1].y) * f
+      };
+    }
+    return { x: last.x, y: last.y };
+  }
+
+  /** from~to 구간만 잘라낸 경로 문자열 */
+  function subPath(line, from, to) {
+    from = Math.max(0, from);
+    to = Math.min(line.total, to);
+    if (to <= from) return '';
+
+    var start = pointAt(line, from);
+    var d = 'M' + round(start.x) + ' ' + round(start.y);
+    for (var i = 1; i < line.pts.length; i++) {
+      if (line.cum[i] <= from) continue;
+      if (line.cum[i] >= to) break;
+      d += 'L' + round(line.pts[i].x) + ' ' + round(line.pts[i].y);
+    }
+    var end = pointAt(line, to);
+    return d + 'L' + round(end.x) + ' ' + round(end.y);
+  }
+
+  /** 진행도(0~1) 시점의 모습 그리기 */
+  LadderView.prototype._drawAt = function (progress) {
+    var tail = this.tailLength;
+
+    for (var n = 0; n < this._lines.length; n++) {
+      var L = this._lines[n];
+      var dist = L.total * progress;
+      var here = pointAt(L, dist);
+
+      for (var t = 0; t < TAIL_STEPS; t++) {
+        var to = dist - (tail * t) / TAIL_STEPS;
+        var from = dist - (tail * (t + 1)) / TAIL_STEPS;
+        L.tails[t].setAttribute('d', subPath(L, from, to));
+      }
+
+      L.glow.setAttribute('cx', round(here.x));
+      L.glow.setAttribute('cy', round(here.y));
+      L.head.setAttribute('cx', round(here.x));
+      L.head.setAttribute('cy', round(here.y));
+      L.glow.style.opacity = '1';
+      L.head.style.opacity = '1';
+    }
+  };
+
+  /** 5개 선이 동시에 출발해 같은 시간에 도착하는 애니메이션 */
+  LadderView.prototype.trace = function (duration, onDone) {
     var self = this;
     this.cancel();
-    this._highlight = highlight;
     this._traceComplete = false;
-    this.render();   // 강조 선을 맨 위로 다시 쌓는다
-    this._lines = this._buildLines();
+    this.render();
 
     var startTime = null;
     function step(now) {
       if (startTime === null) startTime = now;
       var progress = Math.min(1, (now - startTime) / duration);
 
-      for (var n = 0; n < self._lines.length; n++) {
-        var L = self._lines[n];
-        var target = L.total * progress;
-        var d = 'M' + round(L.pts[0].x) + ' ' + round(L.pts[0].y);
-        var acc = 0;
-        var cur = L.pts[0];
+      // 출발과 도착을 살짝 부드럽게
+      var eased = progress < 0.5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-        for (var k = 1; k < L.pts.length; k++) {
-          if (acc + L.lens[k - 1] <= target) {
-            d += 'L' + round(L.pts[k].x) + ' ' + round(L.pts[k].y);
-            acc += L.lens[k - 1];
-            cur = L.pts[k];
-          } else {
-            var f = L.lens[k - 1] === 0 ? 0 : (target - acc) / L.lens[k - 1];
-            var x = L.pts[k - 1].x + (L.pts[k].x - L.pts[k - 1].x) * f;
-            var y = L.pts[k - 1].y + (L.pts[k].y - L.pts[k - 1].y) * f;
-            d += 'L' + round(x) + ' ' + round(y);
-            cur = { x: x, y: y };
-            break;
-          }
-        }
-
-        L.path.setAttribute('d', d);
-        L.marker.setAttribute('cx', round(cur.x));
-        L.marker.setAttribute('cy', round(cur.y));
-      }
+      self._drawAt(eased);
 
       if (progress < 1) {
         self._raf = global.requestAnimationFrame(step);
@@ -339,19 +345,17 @@
 
   LadderView.prototype.reset = function () {
     this.cancel();
-    this._highlight = null;
     this._traceComplete = false;
-    this._lines = [];
-    for (var i = 0; i < this.tracePaths.length; i++) {
-      if (!this.tracePaths[i]) continue;
-      this.tracePaths[i].setAttribute('d', '');
-      this.markers[i].style.opacity = '0';
+    for (var i = 0; i < this._lines.length; i++) {
+      var L = this._lines[i];
+      for (var t = 0; t < L.tails.length; t++) L.tails[t].setAttribute('d', '');
+      L.glow.style.opacity = '0';
+      L.head.style.opacity = '0';
     }
   };
 
   global.Ladder = {
     LadderView: LadderView,
-    shuffle: shuffle,
     walk: walk,
     buildGoodRungs: buildGoodRungs
   };

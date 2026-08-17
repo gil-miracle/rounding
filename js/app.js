@@ -1,6 +1,6 @@
 /* =============================================================================
  *  app.js — 화면 전환 및 전체 흐름
- *  인트로 → 퀴즈 → 상품 선택 → 사다리타기 → 엔딩
+ *  인트로 → 퀴즈 → 상자 선택 → 사다리타기(상품 공개) → 엔딩
  * ========================================================================== */
 (function () {
   'use strict';
@@ -43,6 +43,91 @@
     container.appendChild(makeQrBox(src, alt));
   }
 
+  /* ===========================================================================
+   *  재고(수량) 관리 — localStorage 에 이 기기 기준으로 저장
+   * ======================================================================== */
+  var Stock = {
+    _data: null,
+
+    key: function () {
+      return (CONFIG.stock && CONFIG.stock.storageKey) || 'event-stock-v1';
+    },
+
+    enabled: function () {
+      return !CONFIG.stock || CONFIG.stock.enabled !== false;
+    },
+
+    /** 준비 수량. 설정이 없으면 null(무제한) */
+    totalOf: function (prize) {
+      var n = prize.stock;
+      return (typeof n === 'number' && isFinite(n) && n >= 0) ? Math.floor(n) : null;
+    },
+
+    load: function () {
+      if (this._data) return this._data;
+
+      var data = {};
+      CONFIG.prizes.forEach(function (p) {
+        var total = Stock.totalOf(p);
+        if (total !== null) data[p.id] = total;
+      });
+
+      if (this.enabled()) {
+        try {
+          var raw = window.localStorage.getItem(this.key());
+          if (raw) {
+            var saved = JSON.parse(raw);
+            CONFIG.prizes.forEach(function (p) {
+              var total = Stock.totalOf(p);
+              if (total === null) return;
+              if (typeof saved[p.id] === 'number') {
+                data[p.id] = Math.max(0, Math.min(total, Math.floor(saved[p.id])));
+              }
+            });
+          }
+        } catch (e) {
+          // 사생활 보호 모드 등에서 localStorage 를 못 쓰는 경우 — 이번 회차만 세고 넘어간다
+        }
+      }
+
+      this._data = data;
+      return this._data;
+    },
+
+    save: function () {
+      if (!this.enabled()) return;
+      try {
+        window.localStorage.setItem(this.key(), JSON.stringify(this._data));
+      } catch (e) { /* 저장 실패해도 진행에는 문제 없음 */ }
+    },
+
+    /** 남은 수량. 무제한이면 null */
+    left: function (prize) {
+      if (this.totalOf(prize) === null) return null;
+      var data = this.load();
+      return data[prize.id];
+    },
+
+    isSoldOut: function (prize) {
+      var left = this.left(prize);
+      return left !== null && left <= 0;
+    },
+
+    consume: function (prize) {
+      if (this.totalOf(prize) === null) return;
+      var data = this.load();
+      if (data[prize.id] > 0) {
+        data[prize.id] -= 1;
+        this.save();
+      }
+    },
+
+    reset: function () {
+      this._data = null;
+      try { window.localStorage.removeItem(this.key()); } catch (e) {}
+    }
+  };
+
   /* ------------------------------- 상태 ---------------------------------- */
   var SCREEN_ORDER = ['intro', 'quiz', 'prize', 'ladder', 'ending'];
 
@@ -50,14 +135,14 @@
     screen: 'intro',
     quizAnswered: false,
     prizeIndex: null,
-    startLane: null,
-    slots: [],        // 아래 칸에 배치된 결과들
-    result: null,     // 최종 결과
-    running: false    // 사다리 애니메이션 진행 중
+    result: null,        // 공개된 상품
+    consumed: false,     // 이번 회차에 수량을 이미 차감했는지
+    running: false       // 사다리 진행 중
   };
 
   var ladderView = null;
   var autoRestartTimer = null;
+  var autoStartTimer = null;
 
   /* ---------------------------- 화면 전환 -------------------------------- */
   function showScreen(name) {
@@ -129,11 +214,17 @@
    * @param {boolean} backwards 뒤로 이동인지 (뒤로 갈 때는 사다리 결과를 유지)
    */
   function enter(name, backwards) {
+    clearAutoStart();
     if (state.screen === 'ending') clearAutoRestart();
 
+    if (name === 'prize') {
+      showScreen('prize');
+      renderPrizes();
+      return;
+    }
     if (name === 'ladder') {
       showScreen('ladder');
-      if (!backwards) renderLadder();       // 앞으로 진입할 때만 새 사다리
+      if (!backwards) renderLadder();       // 앞으로 진입할 때만 새 사다리 + 자동 시작
       else if (ladderView) requestAnimationFrame(function () { ladderView.render(); });
       return;
     }
@@ -233,34 +324,63 @@
     each($('quizChoices').querySelectorAll('.choice'), function (b) { b.disabled = true; });
   }
 
-  /* =========================== 3. 상품 선택 ============================= */
+  /* ====================== 3. 상자 선택 (이름 비공개) ==================== */
   function renderPrizes() {
     var c = CONFIG.prizeScreen || {};
     state.prizeIndex = null;
 
     $('prizeEyebrow').textContent = c.eyebrow || 'PRIZE';
-    $('prizeHeading').textContent = c.heading || '받고 싶은 상품을 골라주세요';
+    $('prizeHeading').textContent = c.heading || '상자 하나를 골라주세요';
     $('prizeSubheading').textContent = c.subheading || '';
     $('btnPrizeNext').textContent = c.nextLabel || '선택 완료';
     $('btnPrizeNext').disabled = true;
 
     var list = $('prizeList');
     list.innerHTML = '';
+    var available = 0;
+
     CONFIG.prizes.forEach(function (prize, index) {
+      var soldOut = Stock.isSoldOut(prize);
+      if (!soldOut) available++;
+
       var li = el('li', 'prizes__item');
       var btn = el('button', 'prize');
       btn.type = 'button';
       btn.setAttribute('data-index', String(index));
-      btn.appendChild(el('span', 'prize__emoji', prize.emoji || '🎁'));
-      btn.appendChild(el('span', 'prize__name', prize.name || ''));
-      if (prize.note) btn.appendChild(el('span', 'prize__note', prize.note));
+      btn.disabled = soldOut;
+      btn.classList.toggle('is-soldout', soldOut);
+
+      btn.appendChild(el('span', 'prize__box', c.boxEmoji || '🎁'));
+      btn.appendChild(el('span', 'prize__no',
+        (c.boxLabels && c.boxLabels[index]) || String(index + 1)));
+
+      var total = Stock.totalOf(prize);
+      if (total !== null) {
+        var left = Stock.left(prize);
+        btn.appendChild(el('span', 'prize__stock',
+          soldOut ? (c.soldOutLabel || '품절') : (left + ' / ' + total)));
+      }
+
       btn.addEventListener('click', function () { selectPrize(index); });
       li.appendChild(btn);
       list.appendChild(li);
     });
+
+    var notice = $('prizeSoldOut');
+    if (available === 0) {
+      notice.textContent = c.allSoldOutMessage || '준비된 상품이 모두 소진되었어요.';
+      notice.hidden = false;
+    } else {
+      notice.hidden = true;
+    }
+
+    updateNav();
   }
 
   function selectPrize(index) {
+    var prize = CONFIG.prizes[index];
+    if (!prize || Stock.isSoldOut(prize)) return;
+
     state.prizeIndex = index;
     each($('prizeList').querySelectorAll('.prize'), function (b) {
       b.classList.toggle('is-selected', b.getAttribute('data-index') === String(index));
@@ -274,64 +394,44 @@
     return CONFIG.prizes[state.prizeIndex] || CONFIG.prizes[0];
   }
 
-  /** 선택한 상품의 결과를 아래 칸 수만큼 준비 */
-  function prepareSlots() {
-    var prize = currentPrize();
-    var lanes = CONFIG.ladder.lanes;
-    var results = (prize.results || []).slice(0, lanes);
-
-    while (results.length < lanes) {   // 설정이 모자랄 때 방어
-      results.push(results[results.length - 1] || { label: prize.name, win: true });
-    }
-
-    var slots = results.map(function (r) {
-      return {
-        label: r.label || prize.name || '당첨',
-        caption: r.caption != null ? r.caption : (prize.note || ''),
-        image: r.image || prize.qrImage || '',
-        win: r.win !== false
-      };
-    });
-
-    state.slots = CONFIG.ladder.shuffleResults ? Ladder.shuffle(slots) : slots;
+  function laneColors() {
+    return (CONFIG.ladder.colors && CONFIG.ladder.colors.length)
+      ? CONFIG.ladder.colors
+      : ['#ff8a3d', '#3b5bfd', '#16a34a', '#e5484d', '#a855f7'];
   }
 
   function renderLadder() {
     var conf = CONFIG.ladder;
     var lanes = conf.lanes;
+    var colors = laneColors();
 
-    state.startLane = null;
     state.result = null;
+    state.consumed = false;
     state.running = false;
-    prepareSlots();
 
     $('ladderEyebrow').textContent = conf.eyebrow || 'LADDER';
-    $('ladderHeading').textContent = conf.heading || '번호를 고르고 스타트!';
+    $('ladderHeading').textContent = conf.heading || '';
     $('ladderSubheading').textContent = conf.subheading || '';
     $('btnLadderStart').textContent = conf.startLabel || '스타트';
-    $('btnLadderStart').hidden = false;
-    $('btnLadderStart').disabled = true;
+    $('btnLadderStart').hidden = conf.autoStart !== false;   // 자동 시작이면 버튼 숨김
+    $('btnLadderStart').disabled = false;
     $('btnLadderNext').textContent = conf.nextLabel || '다음';
     $('btnLadderNext').hidden = true;
 
     resetMerge();
 
-    /* 위쪽 선택 버튼 */
+    /* 위쪽 번호 (선택하지 않음 — 색깔 안내용) */
     var heads = $('ladderHeads');
     heads.innerHTML = '';
     heads.style.setProperty('--lanes', lanes);
     for (var i = 0; i < lanes; i++) {
-      (function (index) {
-        var cell = el('div', 'ladder__cell');
-        var btn = el('button', 'head');
-        btn.type = 'button';
-        btn.setAttribute('data-index', String(index));
-        btn.appendChild(el('span', 'head__label',
-          (conf.headLabels && conf.headLabels[index]) || String(index + 1)));
-        btn.addEventListener('click', function () { selectLane(index); });
-        cell.appendChild(btn);
-        heads.appendChild(cell);
-      })(i);
+      var cell = el('div', 'ladder__cell');
+      var head = el('div', 'head');
+      head.style.setProperty('--lane-color', colors[i % colors.length]);
+      head.appendChild(el('span', 'head__label',
+        (conf.headLabels && conf.headLabels[i]) || String(i + 1)));
+      cell.appendChild(head);
+      heads.appendChild(cell);
     }
 
     /* 아래쪽 가려진 칸 */
@@ -354,18 +454,28 @@
         board: $('ladderBoard'),
         lanes: lanes,
         rows: conf.rows,
+        colors: colors,
+        tailLength: conf.tailLength || 80,
         laneX: measureLaneX
       });
     }
     ladderView.lanes = lanes;
     ladderView.rows = conf.rows;
+    ladderView.colors = colors;
+    ladderView.tailLength = conf.tailLength || 80;
     ladderView.generate();
 
     requestAnimationFrame(function () { ladderView.render(); });
     updateNav();
+
+    /* 아무것도 누르지 않아도 잠시 뒤 자동으로 출발 */
+    if (conf.autoStart !== false) {
+      clearAutoStart();
+      autoStartTimer = setTimeout(startLadder, conf.autoStartDelayMs || 800);
+    }
   }
 
-  /** 위쪽 버튼의 실제 중심 x좌표를 재서 사다리 기둥 위치로 사용 */
+  /** 위쪽 번호칸의 실제 중심 x좌표를 재서 사다리 기둥 위치로 사용 */
   function measureLaneX() {
     var base = $('ladder').getBoundingClientRect().left;
     var xs = [];
@@ -376,37 +486,48 @@
     return xs;
   }
 
-  function selectLane(index) {
-    if (state.result || state.running) return;
-    state.startLane = index;
-    each($('ladderHeads').querySelectorAll('.head'), function (b) {
-      b.classList.toggle('is-selected', b.getAttribute('data-index') === String(index));
-    });
-    $('btnLadderStart').disabled = false;
+  function clearAutoStart() {
+    if (autoStartTimer) {
+      clearTimeout(autoStartTimer);
+      autoStartTimer = null;
+    }
   }
 
   function startLadder() {
-    if (state.startLane === null || state.result || state.running) return;
+    clearAutoStart();
+    if (state.result || state.running) return;
 
     var conf = CONFIG.ladder;
     state.running = true;
     $('btnLadderStart').disabled = true;
     $('ladder').classList.add('is-running');
-    each($('ladderHeads').querySelectorAll('.head'), function (b) { b.disabled = true; });
     updateNav();
 
-    var end = ladderView.destination(state.startLane);
-
-    // 5개 선이 동시에 출발해서 동시에 도착
-    ladderView.trace(state.startLane, conf.traceMs || 2400, function () {
-      setTimeout(function () { mergeAndReveal(end); }, conf.mergeDelayMs || 260);
+    ladderView.trace(conf.traceMs || 2600, function () {
+      setTimeout(mergeAndReveal, conf.mergeDelayMs || 260);
     });
   }
 
-  /** 아래 5칸이 가운데로 모여 하나가 되고, 그 자리에 QR이 나타난다 */
-  function mergeAndReveal(endIndex) {
-    var slot = state.slots[endIndex];
-    state.result = slot;
+  /**
+   * 아래 5칸이 가운데로 모여 하나가 되고, 사다리는 사라지면서
+   * 고른 상자의 상품과 QR이 화면 중앙으로 올라온다.
+   */
+  function mergeAndReveal() {
+    var conf = CONFIG.ladder;
+    var prize = currentPrize();
+
+    state.result = {
+      id: prize.id,
+      name: prize.name || '',
+      emoji: prize.emoji || '',
+      caption: prize.note || '',
+      image: prize.qrImage || ''
+    };
+
+    if (!state.consumed) {          // 수량 차감은 회차당 한 번만
+      Stock.consume(prize);
+      state.consumed = true;
+    }
 
     var area = $('ladderFootArea');
     var feetRow = $('ladderFeet');
@@ -426,20 +547,20 @@
       f.style.transitionDelay = Math.round(Math.abs(i - (feet.length - 1) / 2) * 45) + 'ms';
     });
 
-    requestAnimationFrame(function () { feetRow.classList.add('is-merging'); });
+    requestAnimationFrame(function () {
+      feetRow.classList.add('is-merging');
+      $('ladder').classList.add('is-revealed');   // 사다리(번호·판) 접기
+      $('ladderIntro').classList.add('is-hidden');
+    });
 
     // 다 모인 뒤 결과 카드가 펼쳐진다
     setTimeout(function () {
-      $('mergeLabel').textContent = slot.label;
-      $('mergeCaption').textContent = slot.caption || '';
-      if (slot.win) {
-        $('mergeQr').hidden = false;
-        fillBox($('mergeQr'), slot.image, slot.label + ' QR 코드');
-      } else {
-        $('mergeQr').hidden = true;
-        $('mergeQr').innerHTML = '';
-      }
-      merge.className = 'merge ' + (slot.win ? 'merge--win' : 'merge--lose');
+      $('mergeLead').textContent = conf.revealLead || '당신이 고른 상품은';
+      $('mergeLabel').textContent = (state.result.emoji ? state.result.emoji + ' ' : '') + state.result.name;
+      $('mergeCaption').textContent = state.result.caption;
+      fillBox($('mergeQr'), state.result.image, state.result.name + ' QR 코드');
+
+      merge.className = 'merge merge--win';
       merge.hidden = false;
 
       requestAnimationFrame(function () {
@@ -452,11 +573,9 @@
         area.classList.add('is-merged');
         area.style.height = '';
         state.running = false;
-        $('ladder').classList.add('is-done');
         $('btnLadderStart').hidden = true;
         $('btnLadderNext').hidden = false;
         updateNav();
-        merge.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 620);
     }, 500);
   }
@@ -476,11 +595,13 @@
 
     merge.hidden = true;
     merge.className = 'merge';
+    $('mergeLead').textContent = '';
     $('mergeLabel').textContent = '';
     $('mergeCaption').textContent = '';
     $('mergeQr').innerHTML = '';
-    $('mergeQr').hidden = false;
-    $('ladder').classList.remove('is-running', 'is-done');
+
+    $('ladder').classList.remove('is-running', 'is-revealed');
+    $('ladderIntro').classList.remove('is-hidden');
   }
 
   /* ============================== 5. 엔딩 =============================== */
@@ -491,10 +612,11 @@
     $('btnRestart').textContent = c.restartLabel || '처음으로';
 
     var prizeCard = $('endingPrizeCard');
-    if (c.showPrizeQr && state.result && state.result.win) {
+    if (c.showPrizeQr && state.result) {
       $('endingPrizeLabel').textContent = c.prizeLabel || '내가 받은 선물';
-      fillBox($('endingPrizeQr'), state.result.image, state.result.label + ' QR 코드');
-      $('endingPrizeCaption').textContent = state.result.label;
+      fillBox($('endingPrizeQr'), state.result.image, state.result.name + ' QR 코드');
+      $('endingPrizeCaption').textContent =
+        (state.result.emoji ? state.result.emoji + ' ' : '') + state.result.name;
       prizeCard.hidden = false;
     } else {
       prizeCard.hidden = true;
@@ -540,12 +662,12 @@
   /* ============================ 흐름 제어 =============================== */
   function restart() {
     clearAutoRestart();
+    clearAutoStart();
     if (ladderView) ladderView.reset();
     resetMerge();
     state.prizeIndex = null;
-    state.startLane = null;
     state.result = null;
-    state.slots = [];
+    state.consumed = false;
     state.running = false;
     renderQuiz();
     renderPrizes();
@@ -584,6 +706,12 @@
       document.body.innerHTML = '<p style="padding:24px">config.js 를 불러오지 못했습니다.</p>';
       return;
     }
+
+    // index.html?reset=1 로 열면 수량을 처음 상태로 되돌린다
+    if (/[?&]reset=1/.test(window.location.search)) {
+      Stock.reset();
+    }
+
     var nav = CONFIG.nav || {};
     $('btnPrevLabel').textContent = nav.backLabel || '이전';
     $('btnNextLabel').textContent = nav.nextLabel || '다음';
@@ -593,6 +721,9 @@
     renderPrizes();
     bindEvents();
     showScreen('intro');
+
+    // 운영자용: 콘솔에서 EventStock.reset() 으로도 초기화 가능
+    window.EventStock = Stock;
   }
 
   if (document.readyState === 'loading') {

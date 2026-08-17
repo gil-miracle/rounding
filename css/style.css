@@ -347,30 +347,78 @@ button:disabled { cursor: default; }
   .prizes { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* 상품 이름은 숨긴 채 상자만 보여준다 */
 .prize {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
-  padding: clamp(18px, 3vh, 28px) 10px;
+  padding: clamp(18px, 3vh, 28px) 10px clamp(14px, 2.2vh, 20px);
   background: var(--c-surface);
   border: 2px solid transparent;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  transition: border-color .2s, transform .12s, background .2s;
+  transition: border-color .2s, transform .12s, background .2s, opacity .2s;
 }
-.prize:active { transform: scale(.98); }
-.prize:hover  { border-color: #c9d2f5; }
+.prize:active:not(:disabled) { transform: scale(.98); }
+.prize:hover:not(:disabled)  { border-color: #c9d2f5; }
 
-.prize__emoji { font-size: clamp(30px, 5vw, 46px); line-height: 1.2; }
-.prize__name  { font-size: clamp(14px, 2vw, 18px); font-weight: 700; text-align: center; word-break: keep-all; }
-.prize__note  { font-size: clamp(12px, 1.6vw, 15px); color: var(--c-muted); text-align: center; word-break: keep-all; }
+.prize__box { font-size: clamp(34px, 5.4vw, 52px); line-height: 1.15; }
+.prize__no {
+  font-size: clamp(15px, 2.1vw, 19px);
+  font-weight: 800;
+  color: var(--c-text);
+}
+.prize__stock {
+  margin-top: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eef1f8;
+  color: var(--c-muted);
+  font-size: clamp(11px, 1.5vw, 14px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 
 .prize.is-selected { border-color: var(--c-primary); background: #f2f5ff; }
+.prize.is-selected .prize__stock { background: var(--c-primary); color: #fff; }
+
+.prize.is-soldout { opacity: .45; box-shadow: none; background: #f1f2f5; }
+.prize.is-soldout .prize__box { filter: grayscale(1); }
+.prize.is-soldout .prize__stock { background: #e0e2e8; color: #8a93a5; }
+
+.notice {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: #fff6f6;
+  border: 1px solid #f4d3d4;
+  color: var(--c-wrong);
+  font-size: clamp(13px, 1.8vw, 16px);
+  font-weight: 600;
+  text-align: center;
+  word-break: keep-all;
+}
 
 /* ----------------------------- 사다리타기 ------------------------------ */
-.ladder { margin: clamp(16px, 2.5vh, 26px) 0 4px; user-select: none; }
+#screen-ladder .screen__body { display: flex; flex-direction: column; }
+
+.ladder__intro {
+  overflow: hidden;
+  transition: opacity .35s ease, max-height .5s cubic-bezier(.22, .78, .3, 1), margin .5s;
+  max-height: 260px;
+}
+.ladder__intro.is-hidden { opacity: 0; max-height: 0; margin: 0; }
+
+.ladder {
+  margin: clamp(16px, 2.5vh, 26px) 0 4px;
+  user-select: none;
+  transition: margin .5s cubic-bezier(.22, .78, .3, 1);
+}
+/* 결과가 공개되면 QR 카드가 화면 가운데로 올라온다 */
+.ladder.is-revealed { margin-top: auto; margin-bottom: auto; }
 
 .ladder__row {
   display: grid;
@@ -384,16 +432,14 @@ button:disabled { cursor: default; }
   width: 100%;
   padding: clamp(10px, 1.6vh, 16px) 2px;
   background: var(--c-surface);
-  border: 2px solid var(--c-line);
+  border: 2px solid var(--lane-color, var(--c-line));
   border-radius: 12px;
+  color: var(--lane-color, var(--c-text));
   font-size: clamp(15px, 2.4vw, 22px);
   font-weight: 800;
+  text-align: center;
   box-shadow: var(--shadow);
-  transition: border-color .2s, background .2s, transform .12s, color .2s;
 }
-.head:active:not(:disabled) { transform: scale(.96); }
-.head.is-selected { border-color: var(--c-primary); background: var(--c-primary); color: #fff; }
-.head:disabled:not(.is-selected) { opacity: .45; }
 
 .ladder__board {
   position: relative;
@@ -407,22 +453,23 @@ button:disabled { cursor: default; }
 .ladder__pole { stroke: #cfd5e2; stroke-width: 3; stroke-linecap: round; }
 .ladder__rung { stroke: #b9c2d6; stroke-width: 3; stroke-linecap: round; }
 
-.ladder__trace {
-  stroke: #9aa6c2;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: .45;
-}
-.ladder__trace--mine {
-  stroke: var(--c-accent);
-  stroke-width: 6;
-  opacity: 1;
-}
+/* 내려가는 원의 잔상 — 색은 JS가 기둥별로 넣어준다 */
+.ladder__tail { stroke-linecap: round; stroke-linejoin: round; }
+.ladder__head-dot { stroke: #fff; stroke-width: 2.5; }
 
-/* opacity 는 JS가 표시/숨김에 쓰므로 색 농도는 fill-opacity 로 조절 */
-.ladder__marker { fill: #9aa6c2; fill-opacity: .55; stroke: #fff; stroke-width: 2; }
-.ladder__marker--mine { fill: var(--c-accent); fill-opacity: 1; stroke-width: 3; }
+/* 결과 공개 시 사다리(번호줄 + 판)를 접어서 감춘다.
+   번호줄은 높이가 내용에 따라 정해지므로 max-height 로 접는다. */
+.ladder__heads {
+  overflow: hidden;
+  max-height: 200px;
+  transition: opacity .28s ease, max-height .55s cubic-bezier(.22, .78, .3, 1), margin .55s;
+}
+.ladder__board {
+  overflow: hidden;
+  transition: opacity .28s ease, height .55s cubic-bezier(.22, .78, .3, 1), margin .55s;
+}
+.ladder.is-revealed .ladder__heads { opacity: 0; max-height: 0; margin: 0; }
+.ladder.is-revealed .ladder__board { opacity: 0; height: 0; margin: 0; }
 
 /* ---- 아래 5칸 → 하나로 합쳐지는 영역 ---- */
 .footarea {
@@ -485,10 +532,18 @@ button:disabled { cursor: default; }
 .footarea.is-merged .merge { position: relative; }
 .footarea.is-merged .ladder__feet { visibility: hidden; }
 
+.merge__lead {
+  margin: 0 0 6px;
+  font-size: clamp(13px, 1.8vw, 16px);
+  font-weight: 700;
+  color: var(--c-muted);
+}
+
 .merge__label {
   margin: 0 0 clamp(14px, 2vh, 20px);
-  font-size: clamp(19px, 3vw, 28px);
-  font-weight: 800;
+  font-size: clamp(22px, 3.6vw, 34px);
+  font-weight: 900;
+  line-height: 1.25;
   word-break: keep-all;
 }
 .merge--win  .merge__label { color: var(--c-accent); }

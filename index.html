@@ -61,9 +61,10 @@
   <section class="screen" id="screen-prize" data-screen="prize" hidden>
     <div class="screen__body">
       <p class="eyebrow" id="prizeEyebrow">PRIZE</p>
-      <h2 class="heading" id="prizeHeading">받고 싶은 상품을 골라주세요</h2>
+      <h2 class="heading" id="prizeHeading"></h2>
       <p class="subheading" id="prizeSubheading"></p>
       <ul class="prizes" id="prizeList"></ul>
+      <p class="notice" id="prizeSoldOut" hidden></p>
     </div>
     <div class="screen__footer">
       <button class="btn btn--primary" id="btnPrizeNext" type="button" disabled>선택 완료</button>
@@ -73,9 +74,11 @@
   <!-- ===================== 4. 사다리타기 ===================== -->
   <section class="screen" id="screen-ladder" data-screen="ladder" hidden>
     <div class="screen__body">
-      <p class="eyebrow" id="ladderEyebrow">LADDER</p>
-      <h2 class="heading" id="ladderHeading">번호를 고르고 스타트!</h2>
-      <p class="subheading" id="ladderSubheading"></p>
+      <div class="ladder__intro" id="ladderIntro">
+        <p class="eyebrow" id="ladderEyebrow">LADDER</p>
+        <h2 class="heading" id="ladderHeading"></h2>
+        <p class="subheading" id="ladderSubheading"></p>
+      </div>
 
       <div class="ladder" id="ladder">
         <div class="ladder__row ladder__heads" id="ladderHeads"></div>
@@ -83,10 +86,11 @@
           <svg class="ladder__svg" id="ladderSvg" aria-hidden="true"></svg>
         </div>
 
-        <!-- 아래 5칸 → 도착하면 하나로 합쳐지는 영역 -->
+        <!-- 아래 5칸 → 도착하면 하나로 합쳐지며 QR이 올라오는 영역 -->
         <div class="footarea" id="ladderFootArea">
           <div class="ladder__row ladder__feet" id="ladderFeet"></div>
           <div class="merge" id="ladderMerge" role="status" aria-live="polite" hidden>
+            <p class="merge__lead" id="mergeLead"></p>
             <p class="merge__label" id="mergeLabel"></p>
             <div class="merge__qr" id="mergeQr"></div>
             <p class="merge__caption" id="mergeCaption"></p>
@@ -95,7 +99,7 @@
       </div>
     </div>
     <div class="screen__footer">
-      <button class="btn btn--primary" id="btnLadderStart" type="button" disabled>스타트</button>
+      <button class="btn btn--primary" id="btnLadderStart" type="button" hidden>스타트</button>
       <button class="btn btn--primary" id="btnLadderNext" type="button" hidden>다음</button>
     </div>
   </section>
