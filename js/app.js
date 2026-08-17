@@ -347,6 +347,11 @@
     clearAutoStart();
     if (state.screen === 'ending') clearAutoRestart();
 
+    if (name === 'quiz') {
+      showScreen('quiz');
+      renderQuiz();          // 들어올 때마다 문제를 처음 상태로
+      return;
+    }
     if (name === 'prize') {
       showScreen('prize');
       renderPrizes();
