@@ -487,6 +487,7 @@
       btn.classList.toggle('is-soldout', soldOut);
 
       btn.appendChild(makePrizeIcon(prize));
+      if (prize.lead) btn.appendChild(el('span', 'prize__lead', prize.lead));
       btn.appendChild(el('span', 'prize__name', prize.name || ''));
 
       var total = Stock.totalOf(prize);
