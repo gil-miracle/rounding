@@ -3,7 +3,7 @@
 사다리 도착 화면과 엔딩 화면에 보여줄 **컨퍼런스 신청폼 QR** 을 여기에 넣어주세요.
 
 ```
-assets/qr/apply.png
+assets/qr/apply.jpg
 ```
 
 - `js/config.js` 의 `form.image` 가 이 경로를 가리키고 있습니다.

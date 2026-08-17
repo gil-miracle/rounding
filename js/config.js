@@ -110,7 +110,7 @@ var CONFIG = {
   form: {
     lead: '어느 길로 내려와도',
     title: 'MIRACLE 컨퍼런스 신청',
-    image: 'assets/qr/apply.png',               // 신청폼 QR 이미지
+    image: 'assets/qr/apply.jpg',               // 신청폼 QR 이미지
     caption: '9월 11일(금) ACTS29 비전 빌리지에서 만나요'
   },
 

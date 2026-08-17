@@ -765,7 +765,8 @@ button:focus-visible {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  image-rendering: pixelated;
+  /* 실제 QR 사진을 줄여서 보여줄 때는 부드럽게 줄여야 인식이 잘 됩니다 */
+  image-rendering: auto;
 }
 
 .qrbox--missing,
