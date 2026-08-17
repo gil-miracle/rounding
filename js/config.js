@@ -60,20 +60,36 @@ var CONFIG = {
    * 4. 상품 목록 (6개)
    *
    *   name     : 공개될 때 보여줄 상품 이름
-   *   emoji    : 공개될 때 이름 앞에 붙는 그림
-   *   note     : QR 아래 안내 문구
-   *   qrImage  : 이 상품의 QR 이미지 경로 (assets/qr/ 안의 파일을 교체하세요)
-   *   stock    : 준비한 수량. 이 숫자만큼만 나가고 0이 되면 선택할 수 없습니다.
+   *   emoji    : 이름 앞에 붙는 그림 (이미지가 없을 때 대신 표시되기도 합니다)
+   *   note     : 이름 아래 안내 문구
+   *   image    : 짜잔 화면에 크게 보여줄 상품 사진 → assets/prize/ 에 넣어주세요
+   *   qrImage  : 상품 기프티콘 QR (엔딩에서 보여줍니다. 없으면 '' 로 두세요)
+   *   stock    : 준비한 수량. 0이 되면 선택할 수 없습니다.
    *              수량 제한 없이 쓰려면 stock 줄을 지우세요.
    * ------------------------------------------------------------------------ */
   prizes: [
-    { id: 'cafe',        emoji: '☕', name: '카페 기프티콘',  note: '아메리카노 Tall', qrImage: 'assets/qr/cafe.svg',        stock: 10 },
-    { id: 'chicken',     emoji: '🍗', name: '치킨 기프티콘',  note: '후라이드 한 마리', qrImage: 'assets/qr/chicken.svg',     stock: 10 },
-    { id: 'convenience', emoji: '🏪', name: '편의점 상품권',  note: '5,000원권',       qrImage: 'assets/qr/convenience.svg', stock: 10 },
-    { id: 'icecream',    emoji: '🍦', name: '아이스크림',     note: '파인트 1개',       qrImage: 'assets/qr/icecream.svg',    stock: 10 },
-    { id: 'burger',      emoji: '🍔', name: '버거 세트',      note: '단품 + 음료',      qrImage: 'assets/qr/burger.svg',      stock: 10 },
-    { id: 'culture',     emoji: '🎁', name: '문화상품권',     note: '10,000원권',      qrImage: 'assets/qr/culture.svg',     stock: 10 }
+    { id: 'cafe',        emoji: '☕', name: '카페 기프티콘',  note: '아메리카노 Tall',
+      image: 'assets/prize/cafe.png',        qrImage: 'assets/qr/cafe.svg',        stock: 10 },
+    { id: 'chicken',     emoji: '🍗', name: '치킨 기프티콘',  note: '후라이드 한 마리',
+      image: 'assets/prize/chicken.png',     qrImage: 'assets/qr/chicken.svg',     stock: 10 },
+    { id: 'convenience', emoji: '🏪', name: '편의점 상품권',  note: '5,000원권',
+      image: 'assets/prize/convenience.png', qrImage: 'assets/qr/convenience.svg', stock: 10 },
+    { id: 'icecream',    emoji: '🍦', name: '아이스크림',     note: '파인트 1개',
+      image: 'assets/prize/icecream.png',    qrImage: 'assets/qr/icecream.svg',    stock: 10 },
+    { id: 'burger',      emoji: '🍔', name: '버거 세트',      note: '단품 + 음료',
+      image: 'assets/prize/burger.png',      qrImage: 'assets/qr/burger.svg',      stock: 10 },
+    { id: 'culture',     emoji: '🎁', name: '문화상품권',     note: '10,000원권',
+      image: 'assets/prize/culture.png',     qrImage: 'assets/qr/culture.svg',     stock: 10 }
   ],
+
+  /* ---------------------------------------------------------------------------
+   * 4-1. 상품 공개 화면 (짜잔!)
+   * ------------------------------------------------------------------------ */
+  reveal: {
+    lead: '짜잔! 🎉',
+    sub: '이 상품은',
+    nextLabel: '사다리 타러 가기'
+  },
 
   /* ---------------------------------------------------------------------------
    * 4-1. 수량 저장 (브라우저 localStorage)
@@ -89,13 +105,24 @@ var CONFIG = {
   },
 
   /* ---------------------------------------------------------------------------
+   * 4-2. 사다리 도착 지점 = 컨퍼런스 신청폼
+   *      어느 줄로 내려와도 모두 여기로 모입니다. (상자와는 무관합니다)
+   * ------------------------------------------------------------------------ */
+  form: {
+    lead: '어느 길로 내려와도',
+    title: '컨퍼런스 신청하기',
+    image: 'assets/qr/apply.svg',             // 신청폼 QR 이미지
+    caption: '신청은 9월 5일까지!'
+  },
+
+  /* ---------------------------------------------------------------------------
    * 5. 사다리타기 화면
-   *    사다리 결과는 상품과 관계없는 연출입니다. 상품은 고른 상자로 이미 정해져 있어요.
+   *    고른 상자와는 별개인 연출입니다. 어느 줄이든 신청폼으로 도착합니다.
    * ------------------------------------------------------------------------ */
   ladder: {
     eyebrow: 'LADDER',
     heading: '스타트를 눌러주세요!',
-    subheading: '5개가 동시에 출발합니다. 어떤 상품인지는 도착하면 공개돼요.',
+    subheading: '5개가 동시에 출발합니다. 어디로 도착할까요?',
     lanes: 5,                                   // 위쪽 선택 칸 수 (= 아래쪽 칸 수)
     rows: 9,                                    // 가로 다리를 놓을 층 수 (많을수록 복잡)
     headLabels: ['1', '2', '3', '4', '5'],      // 위쪽에 적힐 번호
@@ -109,7 +136,6 @@ var CONFIG = {
     autoStartDelayMs: 800,                      // autoStart: true 일 때 출발까지 기다리는 시간(ms)
     traceMs: 2600,                              // 5개 원이 동시에 내려가는 시간(ms)
     mergeDelayMs: 260,                          // 도착 후 칸이 합쳐지기 시작할 때까지(ms)
-    revealLead: '당신이 고른 상품은',            // 공개 카드 첫 줄
     startLabel: '스타트',
     nextLabel: '다음'
   },
@@ -131,13 +157,9 @@ var CONFIG = {
   ending: {
     title: '참여해 주셔서 감사합니다!',
     message: '컨퍼런스에서 만나요.\n선물은 QR을 캡처해 두시면 편해요 📸',
-    showPrizeQr: true,                          // 엔딩에서도 당첨 QR을 한 번 더 보여줄지
+    showPrizeQr: true,                          // 받은 상품 QR을 한 번 더 보여줄지
     prizeLabel: '내가 받은 선물',
-    link: {                                     // 컨퍼런스 신청 링크 QR (필요 없으면 image: '')
-      label: '컨퍼런스 신청하기',
-      image: 'assets/qr/apply.svg',
-      caption: '신청은 9월 5일까지!'
-    },
+    showFormQr: true,                           // 신청폼 QR(위 form 설정)을 함께 보여줄지
     restartLabel: '처음으로',
     autoRestartSec: 0                           // 0보다 크면 그 초 뒤 자동으로 처음 화면으로
   }
