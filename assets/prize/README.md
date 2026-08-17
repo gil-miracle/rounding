@@ -1,16 +1,16 @@
-# 상품 사진 폴더
+# 선물 사진 폴더
 
-"짜잔!" 상품 공개 화면에 크게 보여줄 사진을 여기에 넣어주세요.
+"짜잔!" 선물 공개 화면에 크게 보여줄 사진을 여기에 넣어주세요.
 
 `js/config.js` 의 `prizes` 에 적힌 파일명과 같아야 합니다. 기본값은 아래와 같습니다.
 
 ```
-assets/prize/cafe.png
-assets/prize/chicken.png
-assets/prize/convenience.png
-assets/prize/icecream.png
-assets/prize/burger.png
-assets/prize/culture.png
+assets/prize/water.png    💧 물
+assets/prize/fire.png     🔥 불
+assets/prize/wind.png     🍃 바람
+assets/prize/earth.png    🪨 땅
+assets/prize/sky.png      ☁️ 하늘
+assets/prize/light.png    ✨ 빛
 ```
 
 - png / jpg / svg / webp 모두 됩니다. 확장자를 바꾸면 `config.js` 의 `image` 경로도 함께 바꿔주세요.

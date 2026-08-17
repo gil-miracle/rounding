@@ -9,12 +9,13 @@ var CONFIG = {
    * ------------------------------------------------------------------------ */
   intro: {
     logo: '',                                   // 예: 'assets/logo.png' (비워두면 표시 안 함)
-    eyebrow: '2026 여름 청년 컨퍼런스',
-    title: '함께 세워지는 우리',
-    subtitle: '퀴즈 하나 풀고, 사다리 타고,\n선물까지 받아가세요!',
+    eyebrow: '2026 GIL COMMUNITY CONFERENCE',
+    title: 'MIRACLE',
+    subtitle: '퀴즈 풀고 사다리 타고,\n선물까지 받아가세요!',
     meta: [                                     // 하단 정보 (필요 없으면 빈 배열 [])
-      { term: '일시', desc: '2026. 9. 12(토) ~ 9. 13(주일)' },
-      { term: '장소', desc: '본당 3층 비전홀' }
+      { term: '일시', desc: '9월 11일(금) ~ 13일(주일)' },
+      { term: '장소', desc: 'ACTS29 비전 빌리지 (양지 온누리교회)' },
+      { term: '말씀', desc: '시편 135편 6-7절' }
     ],
     startLabel: '이벤트 시작하기'
   },
@@ -24,16 +25,16 @@ var CONFIG = {
    * ------------------------------------------------------------------------ */
   quiz: {
     eyebrow: 'QUIZ',
-    question: '이번 컨퍼런스의 주제 말씀은 무엇일까요?',
+    question: '이번 컨퍼런스의 주제 말씀은 어디일까요?',
     choices: [
-      '시편 23편 1절',
-      '에베소서 4장 16절',
-      '요한복음 3장 16절',
-      '빌립보서 4장 13절'
+      '시편 23편 1-3절',
+      '시편 135편 6-7절',
+      '이사야 40장 31절',
+      '요한복음 3장 16절'
     ],
     answerIndex: 1,                             // 정답 번호 (0부터 시작 → 위에서 두 번째)
     correctTitle: '정답이에요! 🎉',
-    correctDesc: '“그에게서 온 몸이 각 마디를 통하여 함께 연결되고…”',
+    correctDesc: '“여호와께서는 하늘과 땅에서, 바다와 모든 깊은 곳에서\n기뻐하시는 일이라면 무엇이든 하신다.” (시편 135:6)',
     wrongTitle: '아쉬워요 😅',
     wrongDesc: '다시 한 번 골라볼까요?',
     allowRetry: true,                           // true : 맞출 때까지 다시 고르기
@@ -42,67 +43,65 @@ var CONFIG = {
   },
 
   /* ---------------------------------------------------------------------------
-   * 3. 상품(상자) 선택 화면
-   *    상품 이름은 숨겨져 있고, 사다리 도착 후에 공개됩니다.
+   * 3. 상자 선택 화면
+   *    선물 이름은 숨겨져 있고, 다음 화면에서 공개됩니다.
    * ------------------------------------------------------------------------ */
   prizeScreen: {
-    eyebrow: 'PRIZE',
+    eyebrow: 'GIFT',
     heading: '상자 하나를 골라주세요',
-    subheading: '어떤 선물인지는 사다리를 다 타야 알 수 있어요!',
+    subheading: '어떤 선물이 들어 있을지는 열어봐야 알 수 있어요!',
     boxEmoji: '🎁',                             // 상자에 표시할 그림
     boxLabels: ['1', '2', '3', '4', '5', '6'],  // 상자 번호
     soldOutLabel: '품절',
-    allSoldOutMessage: '준비된 상품이 모두 소진되었어요. 운영자에게 문의해 주세요.',
+    allSoldOutMessage: '준비된 선물이 모두 소진되었어요. 운영자에게 문의해 주세요.',
     nextLabel: '선택 완료'
   },
 
   /* ---------------------------------------------------------------------------
-   * 4. 상품 목록 (6개)
+   * 4. 선물 목록 (6개)
    *
-   *   name     : 공개될 때 보여줄 상품 이름
-   *   emoji    : 이름 앞에 붙는 그림 (이미지가 없을 때 대신 표시되기도 합니다)
-   *   note     : 이름 아래 안내 문구
-   *   image    : 짜잔 화면에 크게 보여줄 상품 사진 → assets/prize/ 에 넣어주세요
-   *   qrImage  : 상품 기프티콘 QR (엔딩에서 보여줍니다. 없으면 '' 로 두세요)
+   *   name     : 공개될 때 크게 보여줄 이름
+   *   lead     : 이름 바로 위에 붙는 수식 문구
+   *   emoji    : 이름 앞 그림 (사진이 없을 때 대신 표시되기도 합니다)
+   *   note     : 이름 아래 안내 문구 (실제로 무엇을 드리는지 적으면 좋아요)
+   *   image    : 짜잔 화면에 크게 보여줄 사진 → assets/prize/ 에 넣어주세요
+   *   qrImage  : 기프티콘 QR이 있을 때만 (없으면 '' 로 두세요)
    *   stock    : 준비한 수량. 0이 되면 선택할 수 없습니다.
    *              수량 제한 없이 쓰려면 stock 줄을 지우세요.
    * ------------------------------------------------------------------------ */
   prizes: [
-    { id: 'cafe',        emoji: '☕', name: '카페 기프티콘',  note: '아메리카노 Tall',
-      image: 'assets/prize/cafe.png',        qrImage: 'assets/qr/cafe.svg',        stock: 10 },
-    { id: 'chicken',     emoji: '🍗', name: '치킨 기프티콘',  note: '후라이드 한 마리',
-      image: 'assets/prize/chicken.png',     qrImage: 'assets/qr/chicken.svg',     stock: 10 },
-    { id: 'convenience', emoji: '🏪', name: '편의점 상품권',  note: '5,000원권',
-      image: 'assets/prize/convenience.png', qrImage: 'assets/qr/convenience.svg', stock: 10 },
-    { id: 'icecream',    emoji: '🍦', name: '아이스크림',     note: '파인트 1개',
-      image: 'assets/prize/icecream.png',    qrImage: 'assets/qr/icecream.svg',    stock: 10 },
-    { id: 'burger',      emoji: '🍔', name: '버거 세트',      note: '단품 + 음료',
-      image: 'assets/prize/burger.png',      qrImage: 'assets/qr/burger.svg',      stock: 10 },
-    { id: 'culture',     emoji: '🎁', name: '문화상품권',     note: '10,000원권',
-      image: 'assets/prize/culture.png',     qrImage: 'assets/qr/culture.svg',     stock: 10 }
+    { id: 'water', emoji: '💧', name: '물',
+      lead: '메마른 영혼을 적시는 생명의',
+      note: '', image: 'assets/prize/water.png', qrImage: '', stock: 10 },
+
+    { id: 'fire', emoji: '🔥', name: '불',
+      lead: '차갑게 식어버린 마음을 태우는 성령의',
+      note: '', image: 'assets/prize/fire.png', qrImage: '', stock: 10 },
+
+    { id: 'wind', emoji: '🍃', name: '바람',
+      lead: '온몸을 스치는',
+      note: '', image: 'assets/prize/wind.png', qrImage: '', stock: 10 },
+
+    { id: 'earth', emoji: '🪨', name: '땅',
+      lead: '우리가 딛고 선 단단한',
+      note: '', image: 'assets/prize/earth.png', qrImage: '', stock: 10 },
+
+    { id: 'sky', emoji: '☁️', name: '하늘',
+      lead: '끝없이 높은',
+      note: '', image: 'assets/prize/sky.png', qrImage: '', stock: 10 },
+
+    { id: 'light', emoji: '✨', name: '빛',
+      lead: '어두움을 밀어내는 환한',
+      note: '', image: 'assets/prize/light.png', qrImage: '', stock: 10 }
   ],
 
   /* ---------------------------------------------------------------------------
-   * 4-1. 상품 공개 화면 (짜잔!)
+   * 4-1. 선물 공개 화면 (짜잔!)
    * ------------------------------------------------------------------------ */
   reveal: {
     lead: '짜잔! 🎉',
-    sub: '이 상품은',
+    sub: '이 선물은',                            // 상품에 lead 가 없을 때 대신 쓰는 문구
     nextLabel: '사다리 타러 가기'
-  },
-
-  /* ---------------------------------------------------------------------------
-   * 4-1. 수량 저장 (브라우저 localStorage)
-   *
-   *   · 이 기기(브라우저)에만 저장됩니다. 여러 대로 운영하면 기기마다 따로 셉니다.
-   *   · 수량을 처음부터 다시 세려면 주소 끝에 ?reset=1 을 붙여 한 번 열어주세요.
-   *     예) index.html?reset=1
-   *   · storageKey 를 바꿔도 초기화됩니다.
-   * ------------------------------------------------------------------------ */
-  stock: {
-    enabled: true,
-    storageKey: 'miracle-rounding-stock-v1',
-    hideButton: false                           // true 로 두면 첫 화면의 톱니바퀴를 숨깁니다
   },
 
   /* ---------------------------------------------------------------------------
@@ -111,9 +110,23 @@ var CONFIG = {
    * ------------------------------------------------------------------------ */
   form: {
     lead: '어느 길로 내려와도',
-    title: '컨퍼런스 신청하기',
-    image: 'assets/qr/apply.svg',             // 신청폼 QR 이미지
-    caption: '신청은 9월 5일까지!'
+    title: 'MIRACLE 컨퍼런스 신청',
+    image: 'assets/qr/apply.svg',               // 신청폼 QR 이미지
+    caption: '9월 11일(금) ACTS29 비전 빌리지에서 만나요'
+  },
+
+  /* ---------------------------------------------------------------------------
+   * 4-3. 수량 저장 (브라우저 localStorage)
+   *
+   *   · 이 기기(브라우저)에만 저장됩니다. 여러 대로 운영하면 기기마다 따로 셉니다.
+   *   · 첫 화면 우측 위 톱니바퀴에서 수량을 직접 고칠 수 있습니다.
+   *   · 처음부터 다시 세려면 주소 끝에 ?reset=1 을 붙여 한 번 열어주세요.
+   *     예) index.html?reset=1
+   * ------------------------------------------------------------------------ */
+  stock: {
+    enabled: true,
+    storageKey: 'miracle-rounding-stock-v1',
+    hideButton: false                           // true 로 두면 첫 화면의 톱니바퀴를 숨깁니다
   },
 
   /* ---------------------------------------------------------------------------
@@ -128,8 +141,8 @@ var CONFIG = {
     rows: 9,                                    // 가로 다리를 놓을 층 수 (많을수록 복잡)
     headLabels: ['1', '2', '3', '4', '5'],      // 위쪽에 적힐 번호
     coverLabel: '?',                            // 가려진 아래칸에 적힐 글자
-    colors: [                                   // 내려가는 원 5개의 색깔
-      '#ff8a3d', '#3b5bfd', '#16a34a', '#e5484d', '#a855f7'
+    colors: [                                   // 포스터 색으로 맞춘 원 5개의 색깔
+      '#DE5B6B', '#EE9C46', '#A79FD4', '#3E8A5F', '#7BA7D7'
     ],
     tailLength: 90,                             // 원 뒤에 남는 잔상 길이(px)
     autoStart: false,                           // false: 스타트 버튼을 눌러야 출발
@@ -156,9 +169,9 @@ var CONFIG = {
    * 6. 엔딩 화면
    * ------------------------------------------------------------------------ */
   ending: {
-    title: '참여해 주셔서 감사합니다!',
-    message: '컨퍼런스에서 만나요.\n선물은 QR을 캡처해 두시면 편해요 📸',
-    showPrizeQr: true,                          // 받은 상품 QR을 한 번 더 보여줄지
+    title: '컨퍼런스에서 만나요!',
+    message: '9월 11일(금) ~ 13일(주일)\nACTS29 비전 빌리지',
+    showPrizeQr: true,                          // 받은 선물 QR을 한 번 더 보여줄지 (qrImage 있을 때만)
     prizeLabel: '내가 받은 선물',
     showFormQr: true,                           // 신청폼 QR(위 form 설정)을 함께 보여줄지
     restartLabel: '처음으로',

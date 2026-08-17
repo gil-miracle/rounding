@@ -550,7 +550,7 @@
     }
 
     $('revealLead').textContent = c.lead || '짜잔! 🎉';
-    $('revealSub').textContent = c.sub || '이 상품은';
+    $('revealSub').textContent = prize.lead || c.sub || '이 선물은';
     $('revealName').textContent = (prize.emoji ? prize.emoji + ' ' : '') + (prize.name || '');
     $('revealNote').textContent = prize.note || '';
     $('btnRevealNext').textContent = c.nextLabel || '다음';
