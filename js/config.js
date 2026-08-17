@@ -110,7 +110,7 @@ var CONFIG = {
   form: {
     lead: '어느 길로 내려와도',
     title: 'MIRACLE 컨퍼런스 신청',
-    image: 'assets/qr/apply.svg',               // 신청폼 QR 이미지
+    image: 'assets/qr/apply.png',               // 신청폼 QR 이미지
     caption: '9월 11일(금) ACTS29 비전 빌리지에서 만나요'
   },
 
@@ -138,7 +138,9 @@ var CONFIG = {
     subheading: '5개가 동시에 출발합니다. 어디로 도착할까요?',
     lanes: 5,                                   // 위쪽 선택 칸 수 (= 아래쪽 칸 수)
     rows: 9,                                    // 가로 다리를 놓을 층 수 (많을수록 복잡)
-    headLabels: ['1', '2', '3', '4', '5'],      // 위쪽에 적힐 번호
+    headLabels: [                               // 위쪽 다섯 칸에 적힐 문구
+      '건강', '연애·결혼', '직장', '가족구원', '인간관계'
+    ],
     coverLabel: '?',                            // 가려진 아래칸에 적힐 글자
     colors: [                                   // 포스터 색으로 맞춘 원 5개의 색깔
       '#DE5B6B', '#EE9C46', '#A79FD4', '#3E8A5F', '#7BA7D7'
