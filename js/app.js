@@ -486,9 +486,8 @@
       btn.disabled = soldOut;
       btn.classList.toggle('is-soldout', soldOut);
 
-      btn.appendChild(el('span', 'prize__box', c.boxEmoji || '🎁'));
-      btn.appendChild(el('span', 'prize__no',
-        (c.boxLabels && c.boxLabels[index]) || String(index + 1)));
+      btn.appendChild(makePrizeIcon(prize));
+      btn.appendChild(el('span', 'prize__name', prize.name || ''));
 
       var total = Stock.totalOf(prize);
       if (total !== null) {
@@ -511,6 +510,25 @@
     }
 
     updateNav();
+  }
+
+  /** 상자 아이콘 — icon 이미지가 있으면 그걸, 없으면 이모지를 쓴다 */
+  function makePrizeIcon(prize) {
+    var wrap = el('span', 'prize__icon');
+
+    if (prize.icon) {
+      var img = el('img', 'prize__icon-img');
+      img.alt = '';
+      img.addEventListener('error', function () {
+        wrap.innerHTML = '';
+        wrap.appendChild(el('span', 'prize__emoji', prize.emoji || '🎁'));
+      });
+      img.src = prize.icon;
+      wrap.appendChild(img);
+    } else {
+      wrap.appendChild(el('span', 'prize__emoji', prize.emoji || '🎁'));
+    }
+    return wrap;
   }
 
   function selectPrize(index) {

@@ -395,7 +395,7 @@ button:focus-visible {
   align-items: center;
   gap: 4px;
   width: 100%;
-  padding: clamp(18px, 3vh, 28px) 10px clamp(14px, 2.2vh, 20px);
+  padding: clamp(16px, 2.4vh, 24px) 10px clamp(12px, 1.8vh, 18px);
   background: var(--c-surface);
   border: 2px solid transparent;
   border-radius: var(--radius);
@@ -405,12 +405,24 @@ button:focus-visible {
 .prize:active:not(:disabled) { transform: scale(.98); }
 .prize:hover:not(:disabled)  { border-color: #f0bcb6; }
 
-.prize__box { font-size: clamp(34px, 5.4vw, 52px); line-height: 1.15; }
-.prize__no {
-  font-size: clamp(15px, 2.1vw, 19px);
+.prize__icon {
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 7.2vw, 68px);
+  height: clamp(48px, 7.2vw, 68px);
+  border-radius: 50%;
+  background: var(--c-tint);
+}
+.prize__icon-img { width: 76%; height: 76%; object-fit: contain; }
+.prize__emoji { font-size: clamp(28px, 4.6vw, 42px); line-height: 1; }
+
+.prize__name {
+  font-size: clamp(16px, 2.4vw, 22px);
   font-weight: 800;
   color: var(--c-text);
+  word-break: keep-all;
 }
+
 .prize__stock {
   margin-top: 4px;
   padding: 3px 10px;
@@ -423,10 +435,11 @@ button:focus-visible {
 }
 
 .prize.is-selected { border-color: var(--c-primary); background: var(--c-tint-2); }
+.prize.is-selected .prize__icon { background: #fbdcd8; }
 .prize.is-selected .prize__stock { background: var(--c-primary); color: #fff; }
 
 .prize.is-soldout { opacity: .45; box-shadow: none; background: #f2e9e2; }
-.prize.is-soldout .prize__box { filter: grayscale(1); }
+.prize.is-soldout .prize__icon { filter: grayscale(1); }
 .prize.is-soldout .prize__stock { background: #e7dbd2; color: #a2918a; }
 
 .notice {

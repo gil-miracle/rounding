@@ -49,9 +49,7 @@ var CONFIG = {
   prizeScreen: {
     eyebrow: 'GIFT',
     heading: '상자 하나를 골라주세요',
-    subheading: '어떤 선물이 들어 있을지는 열어봐야 알 수 있어요!',
-    boxEmoji: '🎁',                             // 상자에 표시할 그림
-    boxLabels: ['1', '2', '3', '4', '5', '6'],  // 상자 번호
+    subheading: '마음이 가는 선물을 하나 골라주세요.',
     soldOutLabel: '품절',
     allSoldOutMessage: '준비된 선물이 모두 소진되었어요. 운영자에게 문의해 주세요.',
     nextLabel: '선택 완료'
@@ -60,37 +58,38 @@ var CONFIG = {
   /* ---------------------------------------------------------------------------
    * 4. 선물 목록 (6개)
    *
-   *   name     : 공개될 때 크게 보여줄 이름
-   *   lead     : 이름 바로 위에 붙는 수식 문구
-   *   emoji    : 이름 앞 그림 (사진이 없을 때 대신 표시되기도 합니다)
-   *   note     : 이름 아래 안내 문구 (실제로 무엇을 드리는지 적으면 좋아요)
-   *   image    : 짜잔 화면에 크게 보여줄 사진 → assets/prize/ 에 넣어주세요
+   *   name     : 선택 화면과 공개 화면에 보여줄 이름
+   *   emoji    : 선택 화면 아이콘 (icon 파일이 없을 때 사용)
+   *   icon     : 선택 화면 아이콘 이미지 → assets/prize/icon/ 에 넣어주세요 (없으면 '')
+   *   lead     : 공개 화면에서 이름 바로 위에 붙는 문구
+   *   note     : 공개 화면에서 이름 아래에 붙는 문구
+   *   image    : 공개 화면에 크게 보여줄 사진 → assets/prize/ 에 넣어주세요
    *   qrImage  : 기프티콘 QR이 있을 때만 (없으면 '' 로 두세요)
    *   stock    : 준비한 수량. 0이 되면 선택할 수 없습니다.
    *              수량 제한 없이 쓰려면 stock 줄을 지우세요.
    * ------------------------------------------------------------------------ */
   prizes: [
-    { id: 'water', emoji: '💧', name: '물',
+    { id: 'water', emoji: '💧', name: '물', icon: '',
       lead: '메마른 영혼을 적시는 생명의',
       note: '', image: 'assets/prize/water.png', qrImage: '', stock: 10 },
 
-    { id: 'fire', emoji: '🔥', name: '불',
+    { id: 'fire', emoji: '🔥', name: '불', icon: '',
       lead: '차갑게 식어버린 마음을 태우는 성령의',
       note: '', image: 'assets/prize/fire.png', qrImage: '', stock: 10 },
 
-    { id: 'wind', emoji: '🍃', name: '바람',
+    { id: 'wind', emoji: '🍃', name: '바람', icon: '',
       lead: '온몸을 스치는',
       note: '', image: 'assets/prize/wind.png', qrImage: '', stock: 10 },
 
-    { id: 'earth', emoji: '🪨', name: '땅',
+    { id: 'earth', emoji: '🪨', name: '땅', icon: '',
       lead: '우리가 딛고 선 단단한',
       note: '', image: 'assets/prize/earth.png', qrImage: '', stock: 10 },
 
-    { id: 'sky', emoji: '☁️', name: '하늘',
+    { id: 'sky', emoji: '☁️', name: '하늘', icon: '',
       lead: '끝없이 높은',
       note: '', image: 'assets/prize/sky.png', qrImage: '', stock: 10 },
 
-    { id: 'light', emoji: '✨', name: '빛',
+    { id: 'light', emoji: '✨', name: '빛', icon: '',
       lead: '어두움을 밀어내는 환한',
       note: '', image: 'assets/prize/light.png', qrImage: '', stock: 10 }
   ],
