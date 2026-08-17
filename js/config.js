@@ -101,7 +101,8 @@ var CONFIG = {
    * ------------------------------------------------------------------------ */
   stock: {
     enabled: true,
-    storageKey: 'miracle-rounding-stock-v1'
+    storageKey: 'miracle-rounding-stock-v1',
+    hideButton: false                           // true 로 두면 첫 화면의 톱니바퀴를 숨깁니다
   },
 
   /* ---------------------------------------------------------------------------

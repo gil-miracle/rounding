@@ -24,6 +24,11 @@
 
   <!-- ===================== 1. 인트로 ===================== -->
   <section class="screen" id="screen-intro" data-screen="intro">
+    <button class="gear" id="btnStockOpen" type="button" aria-label="상품 수량 관리" title="상품 수량 관리">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M19.14 12.94a7.6 7.6 0 0 0 .05-.94 7.6 7.6 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.62l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.3 7.3 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.24-1.12.55-1.62.94l-2.39-.96a.5.5 0 0 0-.6.22L2.67 8.86a.5.5 0 0 0 .12.62l2.03 1.58c-.03.31-.05.63-.05.94s.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.62l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.24 1.12-.55 1.62-.94l2.39.96c.22.08.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.62l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Z"/>
+      </svg>
+    </button>
     <div class="screen__body screen__body--center">
       <img class="intro__logo" id="introLogo" alt="" hidden>
       <p class="intro__eyebrow" id="introEyebrow"></p>
@@ -147,6 +152,21 @@
       <p class="autoreset" id="autoReset" hidden></p>
     </div>
   </section>
+
+  <!-- ================= 상품 수량 관리 (운영자용) ================= -->
+  <div class="modal" id="stockModal" hidden>
+    <div class="modal__backdrop" id="stockBackdrop"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stockTitle">
+      <h2 class="modal__title" id="stockTitle">상품 수량 관리</h2>
+      <p class="modal__desc">남은 수량과 전체 수량을 바꿀 수 있어요. <strong>저장</strong>을 눌러야 반영됩니다.</p>
+      <ul class="stocklist" id="stockList"></ul>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="btnStockReset" type="button">처음 수량으로</button>
+        <button class="btn btn--ghost" id="btnStockCancel" type="button">닫기</button>
+        <button class="btn btn--primary" id="btnStockSave" type="button">저장</button>
+      </div>
+    </div>
+  </div>
 
 </div>
 

@@ -71,7 +71,12 @@
 
   /* ===========================================================================
    *  재고(수량) 관리 — localStorage 에 이 기기 기준으로 저장
+   *  저장 형태: { cafe: { left: 9, total: 10 }, ... }   (total 이 null 이면 무제한)
    * ======================================================================== */
+  function toCount(n) {
+    return (typeof n === 'number' && isFinite(n) && n >= 0) ? Math.floor(n) : null;
+  }
+
   var Stock = {
     _data: null,
 
@@ -83,10 +88,9 @@
       return !CONFIG.stock || CONFIG.stock.enabled !== false;
     },
 
-    /** 준비 수량. 설정이 없으면 null(무제한) */
-    totalOf: function (prize) {
-      var n = prize.stock;
-      return (typeof n === 'number' && isFinite(n) && n >= 0) ? Math.floor(n) : null;
+    /** config.js 에 적힌 원래 수량 (없으면 null = 무제한) */
+    configTotal: function (prize) {
+      return toCount(prize.stock);
     },
 
     load: function () {
@@ -94,20 +98,33 @@
 
       var data = {};
       CONFIG.prizes.forEach(function (p) {
-        var total = Stock.totalOf(p);
-        if (total !== null) data[p.id] = total;
+        var total = Stock.configTotal(p);
+        data[p.id] = { left: total, total: total };
       });
 
       if (this.enabled()) {
         try {
           var raw = window.localStorage.getItem(this.key());
-          if (raw) {
-            var saved = JSON.parse(raw);
+          var saved = raw ? JSON.parse(raw) : null;
+          if (saved) {
             CONFIG.prizes.forEach(function (p) {
-              var total = Stock.totalOf(p);
-              if (total === null) return;
-              if (typeof saved[p.id] === 'number') {
-                data[p.id] = Math.max(0, Math.min(total, Math.floor(saved[p.id])));
+              var s = saved[p.id];
+              if (s == null) return;
+
+              if (typeof s === 'number') {          // 예전 저장 형식 (남은 수량만)
+                var t0 = data[p.id].total;
+                if (t0 !== null) data[p.id].left = Math.max(0, Math.min(t0, Math.floor(s)));
+                return;
+              }
+              if (typeof s !== 'object') return;
+
+              var total = toCount(s.total);
+              if (total === null && s.total !== null) total = data[p.id].total;
+              var left = toCount(s.left);
+              if (total === null) {
+                data[p.id] = { left: null, total: null };
+              } else {
+                data[p.id] = { total: total, left: Math.min(left === null ? total : left, total) };
               }
             });
           }
@@ -127,25 +144,41 @@
       } catch (e) { /* 저장 실패해도 진행에는 문제 없음 */ }
     },
 
+    /** 현재 전체 수량 (운영자가 바꿨다면 바뀐 값). 무제한이면 null */
+    totalOf: function (prize) {
+      return this.load()[prize.id].total;
+    },
+
     /** 남은 수량. 무제한이면 null */
     left: function (prize) {
-      if (this.totalOf(prize) === null) return null;
-      var data = this.load();
-      return data[prize.id];
+      return this.load()[prize.id].left;
     },
 
     isSoldOut: function (prize) {
-      var left = this.left(prize);
-      return left !== null && left <= 0;
+      var item = this.load()[prize.id];
+      return item.total !== null && item.left <= 0;
     },
 
     consume: function (prize) {
-      if (this.totalOf(prize) === null) return;
-      var data = this.load();
-      if (data[prize.id] > 0) {
-        data[prize.id] -= 1;
+      var item = this.load()[prize.id];
+      if (item.total === null) return;
+      if (item.left > 0) {
+        item.left -= 1;
         this.save();
       }
+    },
+
+    /** 운영자 모달에서 값 적용 */
+    set: function (prizeId, left, total) {
+      var item = this.load()[prizeId];
+      if (!item) return;
+      if (total === null) {
+        item.total = null;
+        item.left = null;
+        return;
+      }
+      item.total = Math.max(0, total);
+      item.left = Math.max(0, Math.min(item.total, left === null ? item.total : left));
     },
 
     reset: function () {
@@ -153,6 +186,83 @@
       try { window.localStorage.removeItem(this.key()); } catch (e) {}
     }
   };
+
+  /* --------------------- 상품 수량 관리 모달 (운영자용) ------------------ */
+  function isModalOpen() { return !$('stockModal').hidden; }
+
+  function renderStockRows(useConfigDefaults) {
+    var list = $('stockList');
+    list.innerHTML = '';
+
+    CONFIG.prizes.forEach(function (prize) {
+      var configTotal = Stock.configTotal(prize);
+      var total = useConfigDefaults ? configTotal : Stock.totalOf(prize);
+      var left = useConfigDefaults ? configTotal : Stock.left(prize);
+
+      var row = el('li', 'stockrow');
+      row.appendChild(el('span', 'stockrow__name',
+        (prize.emoji ? prize.emoji + ' ' : '') + (prize.name || prize.id)));
+
+      var fields = el('div', 'stockrow__fields');
+      if (total === null) {
+        fields.appendChild(el('span', 'stockrow__free', '수량 제한 없음'));
+      } else {
+        fields.appendChild(makeCountField(prize.id, 'left', '남은', left));
+        fields.appendChild(el('span', 'stockrow__slash', '/'));
+        fields.appendChild(makeCountField(prize.id, 'total', '전체', total));
+      }
+      row.appendChild(fields);
+      list.appendChild(row);
+    });
+  }
+
+  function makeCountField(id, field, label, value) {
+    var wrap = el('label', 'countfield');
+    wrap.appendChild(el('span', 'countfield__label', label));
+    var input = el('input', 'countfield__input');
+    input.type = 'number';
+    input.min = '0';
+    input.max = '999';
+    input.inputMode = 'numeric';
+    input.value = String(value);
+    input.setAttribute('data-id', id);
+    input.setAttribute('data-field', field);
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  function openStockModal() {
+    renderStockRows(false);
+    $('stockModal').hidden = false;
+    document.body.classList.add('is-modal-open');
+  }
+
+  function closeStockModal() {
+    $('stockModal').hidden = true;
+    document.body.classList.remove('is-modal-open');
+  }
+
+  function saveStockModal() {
+    var values = {};
+    each($('stockList').querySelectorAll('.countfield__input'), function (input) {
+      var id = input.getAttribute('data-id');
+      var n = parseInt(input.value, 10);
+      if (isNaN(n) || n < 0) n = 0;
+      if (n > 999) n = 999;
+      values[id] = values[id] || {};
+      values[id][input.getAttribute('data-field')] = n;
+    });
+
+    CONFIG.prizes.forEach(function (prize) {
+      var v = values[prize.id];
+      if (!v) return;                                   // 무제한 상품은 건드리지 않음
+      Stock.set(prize.id, v.left, v.total);
+    });
+    Stock.save();
+
+    renderPrizes();
+    closeStockModal();
+  }
 
   /* ------------------------------- 상태 ---------------------------------- */
   var SCREEN_ORDER = ['intro', 'quiz', 'prize', 'reveal', 'ladder', 'ending'];
@@ -737,8 +847,19 @@
     $('btnNext').addEventListener('click', goNext);
     $('btnBrand').addEventListener('click', restart);   // 가운데 로고 → 처음 화면으로
 
+    // 상품 수량 관리 모달
+    $('btnStockOpen').addEventListener('click', openStockModal);
+    $('btnStockCancel').addEventListener('click', closeStockModal);
+    $('stockBackdrop').addEventListener('click', closeStockModal);
+    $('btnStockSave').addEventListener('click', saveStockModal);
+    $('btnStockReset').addEventListener('click', function () { renderStockRows(true); });
+
     // 키보드(← →)로도 이동 — 프로젝터/키오스크 운영용
     document.addEventListener('keydown', function (e) {
+      if (isModalOpen()) {
+        if (e.key === 'Escape') closeStockModal();
+        return;                                   // 모달이 열려 있으면 화면 이동 금지
+      }
       if (e.key === 'ArrowLeft') goPrev();
       else if (e.key === 'ArrowRight') goNext();
     });
@@ -768,6 +889,7 @@
     $('btnPrevLabel').textContent = nav.backLabel || '이전';
     $('btnNextLabel').textContent = nav.nextLabel || '다음';
     $('btnBrand').textContent = nav.brand || 'MIRACLE';
+    $('btnStockOpen').hidden = !!(CONFIG.stock && CONFIG.stock.hideButton);
 
     renderIntro();
     renderQuiz();
