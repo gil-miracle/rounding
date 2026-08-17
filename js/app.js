@@ -190,14 +190,13 @@
   /* --------------------- 상품 수량 관리 모달 (운영자용) ------------------ */
   function isModalOpen() { return !$('stockModal').hidden; }
 
-  function renderStockRows(useConfigDefaults) {
+  function renderStockRows() {
     var list = $('stockList');
     list.innerHTML = '';
 
     CONFIG.prizes.forEach(function (prize) {
-      var configTotal = Stock.configTotal(prize);
-      var total = useConfigDefaults ? configTotal : Stock.totalOf(prize);
-      var left = useConfigDefaults ? configTotal : Stock.left(prize);
+      var total = Stock.totalOf(prize);
+      var left = Stock.left(prize);
 
       var row = el('li', 'stockrow');
       row.appendChild(el('span', 'stockrow__name',
@@ -232,7 +231,7 @@
   }
 
   function openStockModal() {
-    renderStockRows(false);
+    renderStockRows();
     $('stockModal').hidden = false;
     document.body.classList.add('is-modal-open');
   }
@@ -871,7 +870,6 @@
     $('btnStockCancel').addEventListener('click', closeStockModal);
     $('stockBackdrop').addEventListener('click', closeStockModal);
     $('btnStockSave').addEventListener('click', saveStockModal);
-    $('btnStockReset').addEventListener('click', function () { renderStockRows(true); });
 
     // 키보드(← →)로도 이동 — 프로젝터/키오스크 운영용
     document.addEventListener('keydown', function (e) {

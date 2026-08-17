@@ -561,13 +561,13 @@ button:focus-visible {
   word-break: keep-all;
 }
 
-/* 상품 사진 */
+/* 선물 사진 — 정사각형 */
 .photobox {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   border-radius: var(--radius);
   background: #faf3ed;
   overflow: hidden;
@@ -909,15 +909,15 @@ body.is-modal-open { overflow: hidden; }
 
 .modal__actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
-.modal__actions .btn { padding: 13px 12px; font-size: clamp(14px, 1.8vw, 16px); }
-.modal__actions .btn--primary { flex: 1.2; }
-
-@media (max-width: 480px) {
-  .modal__actions { flex-wrap: wrap; }
-  .modal__actions .btn { flex: 1 1 45%; }
-  .modal__actions .btn--primary { flex: 1 1 100%; order: -1; }
+.modal__actions .btn {
+  flex: 1 1 0;          /* 저장 · 닫기 폭을 똑같이 */
+  width: auto;
+  min-width: 0;
+  padding: 14px 12px;
+  font-size: clamp(14px, 1.8vw, 16px);
+  white-space: nowrap;
 }
 
 /* ------------------------------ 접근성 --------------------------------- */
