@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>컨퍼런스 이벤트</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ================= 상단 네비게이션 / 진행 표시 ================= -->
+  <header class="topbar" id="topbar" hidden>
+    <button class="navbtn" id="btnPrev" type="button">
+      <span class="navbtn__arrow" aria-hidden="true">‹</span><span id="btnPrevLabel">이전</span>
+    </button>
+    <div class="steps" id="steps">
+      <span class="steps__dot" data-step="quiz"></span>
+      <span class="steps__dot" data-step="prize"></span>
+      <span class="steps__dot" data-step="ladder"></span>
+      <span class="steps__dot" data-step="ending"></span>
+    </div>
+    <button class="navbtn" id="btnNext" type="button">
+      <span id="btnNextLabel">다음</span><span class="navbtn__arrow" aria-hidden="true">›</span>
+    </button>
+  </header>
+
+  <!-- ===================== 1. 인트로 ===================== -->
+  <section class="screen" id="screen-intro" data-screen="intro">
+    <div class="screen__body screen__body--center">
+      <img class="intro__logo" id="introLogo" alt="" hidden>
+      <p class="intro__eyebrow" id="introEyebrow"></p>
+      <h1 class="intro__title" id="introTitle"></h1>
+      <p class="intro__subtitle" id="introSubtitle"></p>
+      <dl class="intro__meta" id="introMeta"></dl>
+    </div>
+    <div class="screen__footer">
+      <button class="btn btn--primary" id="btnStart" type="button">시작하기</button>
+    </div>
+  </section>
+
+  <!-- ===================== 2. 퀴즈 ===================== -->
+  <section class="screen" id="screen-quiz" data-screen="quiz" hidden>
+    <div class="screen__body">
+      <p class="eyebrow" id="quizEyebrow">QUIZ</p>
+      <h2 class="heading" id="quizQuestion"></h2>
+      <ul class="choices" id="quizChoices"></ul>
+      <div class="feedback" id="quizFeedback" role="status" aria-live="polite" hidden>
+        <p class="feedback__title" id="quizFeedbackTitle"></p>
+        <p class="feedback__desc" id="quizFeedbackDesc"></p>
+      </div>
+    </div>
+    <div class="screen__footer">
+      <button class="btn btn--primary" id="btnQuizNext" type="button" hidden>다음</button>
+    </div>
+  </section>
+
+  <!-- ===================== 3. 상품 선택 ===================== -->
+  <section class="screen" id="screen-prize" data-screen="prize" hidden>
+    <div class="screen__body">
+      <p class="eyebrow" id="prizeEyebrow">PRIZE</p>
+      <h2 class="heading" id="prizeHeading">받고 싶은 상품을 골라주세요</h2>
+      <p class="subheading" id="prizeSubheading"></p>
+      <ul class="prizes" id="prizeList"></ul>
+    </div>
+    <div class="screen__footer">
+      <button class="btn btn--primary" id="btnPrizeNext" type="button" disabled>선택 완료</button>
+    </div>
+  </section>
+
+  <!-- ===================== 4. 사다리타기 ===================== -->
+  <section class="screen" id="screen-ladder" data-screen="ladder" hidden>
+    <div class="screen__body">
+      <p class="eyebrow" id="ladderEyebrow">LADDER</p>
+      <h2 class="heading" id="ladderHeading">번호를 고르고 스타트!</h2>
+      <p class="subheading" id="ladderSubheading"></p>
+
+      <div class="ladder" id="ladder">
+        <div class="ladder__row ladder__heads" id="ladderHeads"></div>
+        <div class="ladder__board" id="ladderBoard">
+          <svg class="ladder__svg" id="ladderSvg" aria-hidden="true"></svg>
+        </div>
+
+        <!-- 아래 5칸 → 도착하면 하나로 합쳐지는 영역 -->
+        <div class="footarea" id="ladderFootArea">
+          <div class="ladder__row ladder__feet" id="ladderFeet"></div>
+          <div class="merge" id="ladderMerge" role="status" aria-live="polite" hidden>
+            <p class="merge__label" id="mergeLabel"></p>
+            <div class="merge__qr" id="mergeQr"></div>
+            <p class="merge__caption" id="mergeCaption"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="screen__footer">
+      <button class="btn btn--primary" id="btnLadderStart" type="button" disabled>스타트</button>
+      <button class="btn btn--primary" id="btnLadderNext" type="button" hidden>다음</button>
+    </div>
+  </section>
+
+  <!-- ===================== 5. 엔딩 ===================== -->
+  <section class="screen" id="screen-ending" data-screen="ending" hidden>
+    <div class="screen__body screen__body--center">
+      <p class="eyebrow">THANK YOU</p>
+      <h2 class="heading" id="endingTitle"></h2>
+      <p class="subheading" id="endingMessage"></p>
+
+      <div class="ending__card" id="endingPrizeCard" hidden>
+        <p class="ending__card-label" id="endingPrizeLabel"></p>
+        <div class="ending__qr" id="endingPrizeQr"></div>
+        <p class="ending__card-caption" id="endingPrizeCaption"></p>
+      </div>
+
+      <div class="ending__card" id="endingLinkCard" hidden>
+        <p class="ending__card-label" id="endingLinkLabel"></p>
+        <div class="ending__qr" id="endingLinkQr"></div>
+        <p class="ending__card-caption" id="endingLinkCaption"></p>
+      </div>
+    </div>
+    <div class="screen__footer">
+      <button class="btn btn--ghost" id="btnRestart" type="button">처음으로</button>
+      <p class="autoreset" id="autoReset" hidden></p>
+    </div>
+  </section>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/ladder.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Jekyll 설정 — 정적 파일을 그대로 배포하기 위한 최소 설정입니다.
+title: 컨퍼런스 이벤트
+description: 교회 컨퍼런스 독려용 퀴즈 + 사다리타기 이벤트
+
+# 빌드 결과물에서 제외할 파일
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor
