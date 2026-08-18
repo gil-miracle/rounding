@@ -90,7 +90,7 @@ var CONFIG = {
     { id: 'earth', emoji: '🪨', name: '땅', icon: '',
       lead: '우리가 딛고 선 단단한',
       item: '석기시대 초콜릿',
-      note: '겉은 돌처럼 단단해도 입에서는 사르르 🪨',
+      note: '땅을 파다 나온 간식, 석기시대부터 묻혀 있었답니다 🦕',
       image: 'assets/prize/earth.jpg', qrImage: '', stock: 2 },
 
     { id: 'sky', emoji: '☁️', name: '하늘', icon: '',
