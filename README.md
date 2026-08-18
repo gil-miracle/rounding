@@ -50,8 +50,9 @@ css/style.css         스타일 (디자인 시안 반영은 이 파일에서)
 js/config.js          ★ 이벤트 내용 설정 — 보통 이 파일만 고치면 됩니다
 js/ladder.js          사다리 생성 · 경로 계산 · 애니메이션
 js/app.js             화면 전환, 수량 관리, 전체 흐름
-assets/prize/         ★ 상품 사진 (짜잔 화면용) — 여기에 넣어주세요
-assets/qr/apply.jpg   QR 이미지 (지금은 샘플 자리 이미지)
+assets/prize/         ★ 선물 사진 6장 (짜잔 화면용)
+assets/qr/            컨퍼런스 신청폼 QR
+assets/ending/        엔딩 화면 사진
 ```
 
 ---
@@ -87,7 +88,7 @@ prizes: [
 - **선물 사진**(짜잔 화면) → `assets/prize/` 에 `water.jpg` `fire.jpg` `wind.jpg` `earth.jpg` `sky.jpg` `light.jpg` 로 넣습니다. **정사각형**(지금은 492×492)으로 만들어주세요.
 - **아이콘**(상자 선택 화면) → 아무 곳에나 넣고 각 선물의 `icon` 에 경로를 적어주세요. 정사각형 투명 png / svg 가 잘 맞습니다. (예: `assets/prize/icon/water.svg`)
 - **신청폼 QR** → `assets/qr/` 에 넣고 `form.image` 경로를 바꿉니다.
-- **엔딩 사진** → `assets/ending.jpg`. `ending.image` 를 `''` 로 비우면 대신 신청폼 QR이 나옵니다.
+- **엔딩 사진** → `assets/ending/photo.jpg`. `ending.image` 를 `''` 로 비우면 대신 신청폼 QR이 나옵니다.
 - png / jpg / svg / webp 모두 됩니다. 확장자를 바꾸면 `config.js` 의 경로도 함께 바꿔주세요.
 
 파일이 없거나 경로가 틀리면 화면에 **넣어야 할 파일 경로**가 그대로 표시되니 바로 확인할 수 있습니다.
