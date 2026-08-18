@@ -1,20 +1,19 @@
 # 선물 사진 폴더
 
-"짜잔!" 선물 공개 화면에 크게 보여줄 사진을 여기에 넣어주세요.
-
-`js/config.js` 의 `prizes` 에 적힌 파일명과 같아야 합니다. 기본값은 아래와 같습니다.
+"짜잔!" 선물 공개 화면에 크게 보여줄 사진입니다. 지금 들어있는 파일은 아래와 같습니다.
 
 ```
-assets/prize/water.png    💧 물
-assets/prize/fire.png     🔥 불
-assets/prize/wind.png     🍃 바람
-assets/prize/earth.png    🪨 땅
-assets/prize/sky.png      ☁️ 하늘
-assets/prize/light.png    ✨ 빛
+assets/prize/water.jpg    💧 물     → 참붕어빵
+assets/prize/fire.jpg     🔥 불     → 불닭볶음면
+assets/prize/wind.jpg     🍃 바람   → 솜사탕
+assets/prize/earth.jpg    🪨 땅     → 석기시대 초콜릿
+assets/prize/sky.jpg      ☁️ 하늘   → 별뽀빠이
+assets/prize/light.jpg    ✨ 빛     → 아이셔
 ```
 
-- png / jpg / svg / webp 모두 됩니다. 확장자를 바꾸면 `config.js` 의 `image` 경로도 함께 바꿔주세요.
-- **정사각형**(예: 800×800)으로 만들어주세요. 다른 비율이어도 잘리지 않고 정사각 칸 안에 맞춰 들어갑니다.
+- 사진을 바꾸려면 같은 이름으로 덮어쓰면 됩니다.
+- **정사각형**(지금은 492×492)으로 만들어주세요. 다른 비율이어도 잘리지 않고 정사각 칸 안에 맞춰 들어갑니다.
+- png / jpg / svg / webp 모두 됩니다. 확장자를 바꾸면 `js/config.js` 의 `image` 경로도 함께 바꿔주세요.
 - 파일이 없으면 화면에 이모지와 함께 **넣어야 할 파일 경로**가 표시됩니다.
 
 ## 상자 선택 화면 아이콘

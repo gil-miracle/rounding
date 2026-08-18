@@ -539,18 +539,12 @@ button:focus-visible {
 }
 .reveal.is-in .reveal__card { opacity: 1; transform: none; }
 
-.reveal__sub {
-  margin: clamp(14px, 2vh, 20px) 0 4px;
-  font-size: clamp(13px, 1.8vw, 16px);
-  font-weight: 700;
-  color: var(--c-muted);
-}
-
-.reveal__name {
-  margin: 0;
+.reveal__item {
+  margin: clamp(16px, 2.2vh, 22px) 0 0;
   font-size: clamp(24px, 4vw, 36px);
   font-weight: 900;
   line-height: 1.25;
+  color: var(--c-text);
   word-break: keep-all;
 }
 

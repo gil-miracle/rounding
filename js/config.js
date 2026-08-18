@@ -11,11 +11,10 @@ var CONFIG = {
     logo: '',                                   // 예: 'assets/logo.png' (비워두면 표시 안 함)
     eyebrow: '2026 GIL COMMUNITY CONFERENCE',
     title: 'MIRACLE',
-    subtitle: '퀴즈 풀고 사다리 타고,\n선물까지 받아가세요!',
+    subtitle: '퀴즈 풀고 선물 받아가세요!',
     meta: [                                     // 하단 정보 (필요 없으면 빈 배열 [])
       { term: '일시', desc: '9월 11일(금) ~ 13일(주일)' },
-      { term: '장소', desc: 'ACTS29 비전 빌리지 (양지 온누리교회)' },
-      { term: '말씀', desc: '시편 135편 6-7절' }
+      { term: '장소', desc: 'ACTS29 비전 빌리지 (양지 온누리교회)' }
     ],
     startLabel: '이벤트 시작하기'
   },
@@ -34,7 +33,7 @@ var CONFIG = {
     ],
     answerIndex: 1,                             // 정답 번호 (0부터 시작 → 위에서 두 번째)
     correctTitle: '정답이에요! 🎉',
-    correctDesc: '“여호와께서는 하늘과 땅에서, 바다와 모든 깊은 곳에서\n기뻐하시는 일이라면 무엇이든 하신다.” (시편 135:6)',
+    correctDesc: '“여호와께서는 하늘과 땅에서, 바다와 모든 깊은 곳에서\n기뻐하시는 일이라면 무엇이든 하신다.\n여호와께서는 땅끝에서 안개를 일으키고 비와 함께 번개를 보내시며\n그 창고에서 바람을 내보내신다.” (시편 135:6-7)',
     wrongTitle: '아쉬워요 😅',
     wrongDesc: '다시 한 번 골라볼까요?',
     allowRetry: true,                           // true : 맞출 때까지 다시 고르기
@@ -62,7 +61,8 @@ var CONFIG = {
    *   emoji    : 선택 화면 아이콘 (icon 파일이 없을 때 사용)
    *   icon     : 선택 화면 아이콘 이미지 → assets/prize/icon/ 에 넣어주세요 (없으면 '')
    *   lead     : 공개 화면에서 이름 바로 위에 붙는 문구
-   *   note     : 공개 화면에서 이름 아래에 붙는 문구
+   *   item     : 실제로 받는 간식 이름 (이름 아래에 크게 표시)
+   *   note     : 그 아래 한 줄 멘트
    *   image    : 공개 화면에 크게 보여줄 사진 → assets/prize/ 에 넣어주세요
    *   qrImage  : 기프티콘 QR이 있을 때만 (없으면 '' 로 두세요)
    *   stock    : 준비한 수량. 0이 되면 선택할 수 없습니다.
@@ -71,27 +71,39 @@ var CONFIG = {
   prizes: [
     { id: 'water', emoji: '💧', name: '물', icon: '',
       lead: '메마른 영혼을 적시는 생명의',
-      note: '', image: 'assets/prize/water.png', qrImage: '', stock: 10 },
+      item: '참붕어빵',
+      note: '생명수에서 갓 헤엄쳐 나온 붕어 한 마리 🐟',
+      image: 'assets/prize/water.jpg', qrImage: '', stock: 2 },
 
     { id: 'fire', emoji: '🔥', name: '불', icon: '',
       lead: '차갑게 식어버린 마음을 태우는 성령의',
-      note: '', image: 'assets/prize/fire.png', qrImage: '', stock: 10 },
+      item: '불닭볶음면',
+      note: '은혜도 맵게, 마음도 뜨겁게 🔥',
+      image: 'assets/prize/fire.jpg', qrImage: '', stock: 2 },
 
     { id: 'wind', emoji: '🍃', name: '바람', icon: '',
       lead: '온몸을 스치는',
-      note: '', image: 'assets/prize/wind.png', qrImage: '', stock: 10 },
+      item: '솜사탕',
+      note: '후~ 불면 날아갈 듯 가벼운 구름 한 조각 ☁️',
+      image: 'assets/prize/wind.jpg', qrImage: '', stock: 2 },
 
     { id: 'earth', emoji: '🪨', name: '땅', icon: '',
       lead: '우리가 딛고 선 단단한',
-      note: '', image: 'assets/prize/earth.png', qrImage: '', stock: 10 },
+      item: '석기시대 초콜릿',
+      note: '겉은 돌처럼 단단해도 입에서는 사르르 🪨',
+      image: 'assets/prize/earth.jpg', qrImage: '', stock: 2 },
 
     { id: 'sky', emoji: '☁️', name: '하늘', icon: '',
       lead: '끝없이 높은',
-      note: '', image: 'assets/prize/sky.png', qrImage: '', stock: 10 },
+      item: '별뽀빠이',
+      note: '하늘에서 별 한 줌이 쏟아졌어요 ⭐',
+      image: 'assets/prize/sky.jpg', qrImage: '', stock: 2 },
 
     { id: 'light', emoji: '✨', name: '빛', icon: '',
       lead: '어두움을 밀어내는 환한',
-      note: '', image: 'assets/prize/light.png', qrImage: '', stock: 10 }
+      item: '아이셔',
+      note: '한 입에 눈이 번쩍! 어둠이 확 물러갑니다 ✨',
+      image: 'assets/prize/light.jpg', qrImage: '', stock: 2 }
   ],
 
   /* ---------------------------------------------------------------------------
@@ -99,7 +111,6 @@ var CONFIG = {
    * ------------------------------------------------------------------------ */
   reveal: {
     lead: '짜잔! 🎉',
-    sub: '이 선물은',                            // 상품에 lead 가 없을 때 대신 쓰는 문구
     nextLabel: '사다리 타러 가기'
   },
 

@@ -319,8 +319,9 @@
     var nav = CONFIG.nav || {};
     var prev = $('btnPrev');
     var next = $('btnNext');
+    var isLast = SCREEN_ORDER.indexOf(state.screen) === SCREEN_ORDER.length - 1;
     prev.hidden = nav.showBack === false;
-    next.hidden = nav.showNext === false;
+    next.hidden = nav.showNext === false || isLast;   // 마지막 화면에서는 '다음'을 감춘다
     prev.disabled = !canGoPrev();
     next.disabled = !canGoNext();
   }
@@ -562,6 +563,7 @@
       name: prize.name || '',
       emoji: prize.emoji || '',
       caption: prize.note || '',
+      item: prize.item || '',
       image: prize.image || '',
       qrImage: prize.qrImage || ''
     };
@@ -573,9 +575,10 @@
     }
 
     $('revealLead').textContent = c.lead || '짜잔! 🎉';
-    $('revealSub').textContent = prize.lead || c.sub || '이 선물은';
-    $('revealName').textContent = (prize.emoji ? prize.emoji + ' ' : '') + (prize.name || '');
+    $('revealItem').textContent = prize.item || prize.name || '';
+    $('revealItem').hidden = !prize.item;
     $('revealNote').textContent = prize.note || '';
+    $('revealNote').hidden = !prize.note;
     $('btnRevealNext').textContent = c.nextLabel || '다음';
     fillPhoto($('revealPhoto'), prize);
 
