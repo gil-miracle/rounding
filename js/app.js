@@ -69,6 +69,23 @@
     container.appendChild(box);
   }
 
+  /** 일반 사진 박스 (엔딩 등) */
+  function fillImage(container, src, alt) {
+    container.innerHTML = '';
+    var box = el('div', 'photobox');
+    var img = el('img', 'photobox__img');
+    img.alt = alt || '';
+    img.addEventListener('error', function () {
+      box.classList.add('photobox--missing');
+      box.innerHTML = '';
+      box.appendChild(el('p', 'photobox__msg', '이미지를 찾을 수 없어요'));
+      box.appendChild(el('code', 'photobox__path', src));
+    });
+    img.src = src;
+    box.appendChild(img);
+    container.appendChild(box);
+  }
+
   /* ===========================================================================
    *  재고(수량) 관리 — localStorage 에 이 기기 기준으로 저장
    *  저장 형태: { cafe: { left: 9, total: 10 }, ... }   (total 이 null 이면 무제한)
@@ -808,10 +825,21 @@
 
     var form = CONFIG.form || {};
     var linkCard = $('endingLinkCard');
-    if (c.showFormQr !== false && form.image) {
-      $('endingLinkLabel').textContent = form.title || '';
-      fillBox($('endingLinkQr'), form.image, (form.title || '') + ' QR 코드');
-      $('endingLinkCaption').textContent = form.caption || '';
+    var usePhoto = !!c.image;
+    var linkImage = usePhoto ? c.image : (c.showFormQr !== false ? form.image : '');
+
+    if (linkImage) {
+      var label = usePhoto ? (c.imageLabel || '') : (form.title || '');
+      var caption = usePhoto ? (c.imageCaption || '') : (form.caption || '');
+
+      $('endingLinkLabel').textContent = label;
+      $('endingLinkLabel').hidden = !label;
+
+      if (usePhoto) fillImage($('endingLinkQr'), linkImage, caption || '컨퍼런스 안내 사진');
+      else fillBox($('endingLinkQr'), linkImage, (form.title || '') + ' QR 코드');
+
+      $('endingLinkCaption').textContent = caption;
+      $('endingLinkCaption').hidden = !caption;
       linkCard.hidden = false;
     } else {
       linkCard.hidden = true;

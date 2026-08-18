@@ -185,7 +185,11 @@ var CONFIG = {
     message: '9월 11일(금) ~ 13일(주일)\nACTS29 비전 빌리지',
     showPrizeQr: true,                          // 받은 선물 QR을 한 번 더 보여줄지 (qrImage 있을 때만)
     prizeLabel: '내가 받은 선물',
-    showFormQr: true,                           // 신청폼 QR(위 form 설정)을 함께 보여줄지
+    // 아래 image 를 넣으면 신청폼 QR 대신 이 사진이 나옵니다. ''로 두면 QR이 나옵니다.
+    image: 'assets/ending.jpg',
+    imageLabel: '',                             // 사진 위 제목 (비워두면 표시 안 함)
+    imageCaption: '신청 안 하실 거면 시간 언제 괜찮으세요?',
+    showFormQr: true,                           // image 가 없을 때 신청폼 QR을 보여줄지
     restartLabel: '처음으로',
     autoRestartSec: 0                           // 0보다 크면 그 초 뒤 자동으로 처음 화면으로
   }
