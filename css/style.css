@@ -458,6 +458,10 @@ button:focus-visible {
 .prize.is-selected .prize__icon { background: #fbdcd8; }
 .prize.is-selected .prize__stock { background: var(--c-primary); color: #fff; }
 
+.prize.is-taken { opacity: .5; box-shadow: none; background: #f2e9e2; }
+.prize.is-taken .prize__icon { filter: grayscale(.7); }
+.prize.is-taken .prize__stock { background: #e7dbd2; color: #a2918a; }
+
 .prize.is-soldout { opacity: .45; box-shadow: none; background: #f2e9e2; }
 .prize.is-soldout .prize__icon { filter: grayscale(1); }
 .prize.is-soldout .prize__stock { background: #e7dbd2; color: #a2918a; }

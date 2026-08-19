@@ -57,6 +57,7 @@ assets/prize/         ★ 선물 사진 6장 (짜잔 화면용)
 assets/qr/            컨퍼런스 신청폼 QR
 assets/ending/        엔딩 화면 사진
 assets/ladder/        사다리 칸 이미지 5장
+assets/icon/          파비콘 (탭 아이콘 · 홈 화면 아이콘)
 ```
 
 ---
@@ -115,7 +116,7 @@ prizes: [
 
 | 항목 | 설명 |
 | --- | --- |
-| `intro` | 제목, 부제, 일시/장소, 시작 버튼 문구, 로고 이미지 |
+| `intro` | 제목, 부제, 시작 버튼 문구, 로고 이미지 (일시·장소는 퀴즈 정답이라 비워둠) |
 | `quiz.rounds` | 1번 문제 후보들(무작위) / 2번 문제. 문제마다 보기 4개와 `answerIndex`(0부터) |
 | `quiz.allowRetry` | `true` 면 맞출 때까지 재도전, `false` 면 한 번에 판정하고 정답 공개 |
 | `prizeScreen` | 상자 화면 문구, 상자 그림·번호, 품절 문구 |

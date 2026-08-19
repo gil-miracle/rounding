@@ -12,10 +12,9 @@ var CONFIG = {
     eyebrow: '2026 GIL COMMUNITY CONFERENCE',
     title: 'MIRACLE',
     subtitle: '퀴즈 풀고 선물 받아가세요!',
-    meta: [                                     // 하단 정보 (필요 없으면 빈 배열 [])
-      { term: '일시', desc: '9월 11일(금) ~ 13일(주일)' },
-      { term: '장소', desc: 'ACTS29 비전 빌리지 (양지 온누리교회)' }
-    ],
+    // 일시·장소가 퀴즈 정답이라 첫 화면에서는 숨겨둡니다.
+    // 다시 보여주려면 아래 배열에 { term: '일시', desc: '...' } 형태로 넣으세요.
+    meta: [],
     startLabel: '이벤트 시작하기'
   },
 
@@ -53,12 +52,12 @@ var CONFIG = {
         {
           question: '이번 컨퍼런스는 어디에서 열릴까요?',
           choices: [
-            '온누리교회 서빙고성전',
-            '횃불트리니티 신학대학원',
-            'ACTS29 비전 빌리지 (양지 온누리교회)',
-            '온누리교회 양재성전'
+            '재윤 목사님댁',
+            'ACTS29 비전 빌리지',
+            '전도사님 자취방',
+            '한강 잠원지구 돗자리 위'
           ],
-          answerIndex: 2,
+          answerIndex: 1,
           correctDesc: '양지 온누리교회 ACTS29 비전 빌리지에서 만나요!'
         }
       ],
@@ -87,6 +86,7 @@ var CONFIG = {
     heading: '상자 하나를 골라주세요',
     subheading: '마음이 가는 선물을 하나 골라주세요.',
     soldOutLabel: '품절',
+    takenLabel: '이미 받았어요',           // 다른 회차에서 이미 고른 상자
     allSoldOutMessage: '준비된 선물이 모두 소진되었어요. 운영자에게 문의해 주세요.',
     nextLabel: '선택 완료'
   },
@@ -114,7 +114,7 @@ var CONFIG = {
 
     { id: 'fire', emoji: '🔥', name: '불', icon: '',
       lead: '차갑게 식어버린 마음을 태우는 성령의',
-      item: '불닭 곤약 쫀드기',
+      item: '불닭맛 곤약 쫀드기',
       note: '은혜도 맵게, 마음도 뜨겁게 🔥',
       image: 'assets/prize/fire.jpg', qrImage: '', stock: 2 },
 
@@ -148,7 +148,8 @@ var CONFIG = {
    * ------------------------------------------------------------------------ */
   reveal: {
     lead: '짜잔! 🎉',
-    nextLabel: '사다리 타러 가기'
+    nextLabelMore: '다음 문제로',                // 아직 문제가 남았을 때
+    nextLabel: '사다리 타러 가기'               // 마지막 회차일 때
   },
 
   /* ---------------------------------------------------------------------------
@@ -183,7 +184,7 @@ var CONFIG = {
   ladder: {
     eyebrow: 'LADDER',
     heading: '당신이 바라는 기적은 무엇인가요?',
-    subheading: '평소 가장 큰 고민이 기적이 될 수 있기를 바라며..(팅커벨)',
+    subheading: '평소 가장 큰 고민이 기적이 될 수 있기를 바라며.. 🧚',
     lanes: 5,                                   // 위쪽 선택 칸 수 (= 아래쪽 칸 수)
     rows: 9,                                    // 가로 다리를 놓을 층 수 (많을수록 복잡)
     headLabels: [                               // 위쪽 다섯 칸에 적힐 문구

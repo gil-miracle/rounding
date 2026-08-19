@@ -508,20 +508,28 @@
     $('btnPrizeNext').textContent = c.nextLabel || '선택 완료';
     $('btnPrizeNext').disabled = chosen == null;
 
+    // 다른 회차에서 이미 고른 상자는 다시 못 고른다
+    var taken = {};
+    state.prizePicks.forEach(function (idx, r) {
+      if (r !== round && idx != null) taken[idx] = true;
+    });
+
     var list = $('prizeList');
     list.innerHTML = '';
     var available = 0;
 
     CONFIG.prizes.forEach(function (prize, index) {
       var soldOut = Stock.isSoldOut(prize);
-      if (!soldOut) available++;
+      var alreadyTaken = taken[index] === true;
+      if (!soldOut && !alreadyTaken) available++;
 
       var li = el('li', 'prizes__item');
       var btn = el('button', 'prize');
       btn.type = 'button';
       btn.setAttribute('data-index', String(index));
-      btn.disabled = soldOut;
+      btn.disabled = soldOut || alreadyTaken;
       btn.classList.toggle('is-soldout', soldOut);
+      btn.classList.toggle('is-taken', alreadyTaken && !soldOut);
       btn.classList.toggle('is-selected', chosen === index);
 
       btn.appendChild(makePrizeIcon(prize));
@@ -529,7 +537,9 @@
       btn.appendChild(el('span', 'prize__name', prize.name || ''));
 
       var total = Stock.totalOf(prize);
-      if (total !== null) {
+      if (alreadyTaken && !soldOut) {
+        btn.appendChild(el('span', 'prize__stock', c.takenLabel || '이미 받았어요'));
+      } else if (total !== null) {
         var left = Stock.left(prize);
         btn.appendChild(el('span', 'prize__stock',
           soldOut ? (c.soldOutLabel || '품절') : (left + ' / ' + total)));
@@ -574,6 +584,11 @@
     var prize = CONFIG.prizes[index];
     if (!prize || Stock.isSoldOut(prize)) return;
 
+    var round = currentRound();
+    for (var r = 0; r < state.prizePicks.length; r++) {      // 다른 회차에서 고른 것은 거절
+      if (r !== round && state.prizePicks[r] === index) return;
+    }
+
     state.prizePicks[currentRound()] = index;
     each($('prizeList').querySelectorAll('.prize'), function (b) {
       b.classList.toggle('is-selected', b.getAttribute('data-index') === String(index));
@@ -614,7 +629,10 @@
     $('revealItem').hidden = !prize.item;
     $('revealNote').textContent = prize.note || '';
     $('revealNote').hidden = !prize.note;
-    $('btnRevealNext').textContent = c.nextLabel || '다음';
+    var nextName = STEPS[state.step + 1];
+    $('btnRevealNext').textContent = (nextName === 'quiz')
+      ? (c.nextLabelMore || '다음 문제로')
+      : (c.nextLabel || '사다리 타러 가기');
     fillPhoto($('revealPhoto'), prize);
 
     // 애니메이션 다시 재생
