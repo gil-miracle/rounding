@@ -407,15 +407,29 @@
 
     var meta = $('introMeta');
     meta.innerHTML = '';
-    (c.meta || []).forEach(function (item) {
+    var rows = c.meta || [];
+    rows.forEach(function (item) {
       meta.appendChild(el('dt', 'intro__meta-term', item.term));
       meta.appendChild(el('dd', 'intro__meta-desc', item.desc));
     });
+    meta.hidden = rows.length === 0;   // 내용이 없으면 빈 상자를 감춘다
     $('btnStart').textContent = c.startLabel || '시작하기';
   }
 
   /* ============================== 2. 퀴즈 =============================== */
-  /** 이번 회차 문제. 한 번 뽑으면 오갈 때 바뀌지 않는다. */
+  function shuffled(list) {
+    var arr = list.slice();
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  /**
+   * 이번 회차 문제. 한 번 뽑으면 오갈 때 바뀌지 않는다.
+   * 보기 순서는 매번 섞고 정답 위치를 다시 계산한다.
+   */
   function currentQuestion() {
     var round = currentRound();
     if (state.quizPicks[round]) return state.quizPicks[round];
@@ -425,8 +439,18 @@
     var picked = pool[Math.floor(Math.random() * pool.length)] || pool[0] || {
       question: '', choices: [], answerIndex: 0
     };
-    state.quizPicks[round] = picked;
-    return picked;
+
+    var choices = picked.choices || [];
+    var answerText = choices[picked.answerIndex];
+    var mixed = shuffled(choices);
+
+    state.quizPicks[round] = {
+      question: picked.question,
+      choices: mixed,
+      answerIndex: Math.max(0, mixed.indexOf(answerText)),
+      correctDesc: picked.correctDesc
+    };
+    return state.quizPicks[round];
   }
 
   function renderQuiz() {

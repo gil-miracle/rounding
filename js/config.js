@@ -184,7 +184,7 @@ var CONFIG = {
   ladder: {
     eyebrow: 'LADDER',
     heading: '당신이 바라는 기적은 무엇인가요?',
-    subheading: '평소 가장 큰 고민이 기적이 될 수 있기를 바라며.. 🧚',
+    subheading: '평소 가장 큰 고민이 기적이 될 수 있기를 바라며..🧚',
     lanes: 5,                                   // 위쪽 선택 칸 수 (= 아래쪽 칸 수)
     rows: 9,                                    // 가로 다리를 놓을 층 수 (많을수록 복잡)
     headLabels: [                               // 위쪽 다섯 칸에 적힐 문구
