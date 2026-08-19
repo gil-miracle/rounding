@@ -281,17 +281,37 @@
   }
 
   /* ------------------------------- 상태 ---------------------------------- */
-  var SCREEN_ORDER = ['intro', 'quiz', 'prize', 'reveal', 'ladder', 'ending'];
+  /* 퀴즈 → 상자 → 공개 를 두 번 돌고 사다리로 간다 */
+  var STEPS = [
+    'intro',
+    'quiz', 'prize', 'reveal',      // 1회차
+    'quiz', 'prize', 'reveal',      // 2회차
+    'ladder', 'ending'
+  ];
+  var SCREEN_NAMES = ['intro', 'quiz', 'prize', 'reveal', 'ladder', 'ending'];
 
   var state = {
+    step: 0,
     screen: 'intro',
     quizAnswered: false,
-    prizeIndex: null,
-    result: null,        // 공개된 상품
-    consumedFor: null,   // 수량을 이미 차감한 상자 번호
+    quizPicks: [],       // 회차별로 뽑힌 문제
+    prizePicks: [],      // 회차별로 고른 상자 번호
+    results: [],         // 회차별로 공개된 선물
+    consumedFor: {},     // 회차별로 수량을 차감한 상자 번호
     arrived: false,      // 사다리가 도착해 신청폼이 공개됐는지
     running: false       // 사다리 진행 중
   };
+
+  /** 지금 화면 이름 */
+  function currentScreen() { return STEPS[state.step]; }
+
+  /** 이 단계가 몇 회차인지 (0부터) */
+  function roundAt(step) {
+    var r = -1;
+    for (var i = 0; i <= step && i < STEPS.length; i++) if (STEPS[i] === 'quiz') r++;
+    return r < 0 ? 0 : r;
+  }
+  function currentRound() { return roundAt(state.step); }
 
   var ladderView = null;
   var autoRestartTimer = null;
@@ -301,7 +321,7 @@
   function showScreen(name) {
     state.screen = name;
 
-    SCREEN_ORDER.forEach(function (key) {
+    SCREEN_NAMES.forEach(function (key) {
       var section = $('screen-' + key);
       if (!section) return;
       var active = key === name;
@@ -318,25 +338,20 @@
   /* ------------------------- 앞/뒤 이동 버튼 ----------------------------- */
   function canGoNext() {
     if (state.running) return false;
-    switch (state.screen) {
-      case 'intro':  return true;
-      case 'quiz':   return true;
-      case 'prize':  return state.prizeIndex !== null;
-      case 'reveal': return true;
-      case 'ladder': return true;
-      default:       return false;   // 엔딩이 마지막
-    }
+    if (state.step >= STEPS.length - 1) return false;   // 엔딩이 마지막
+    if (currentScreen() === 'prize') return state.prizePicks[currentRound()] != null;
+    return true;
   }
 
   function canGoPrev() {
-    return !state.running && state.screen !== 'intro';
+    return !state.running && state.step > 0;
   }
 
   function updateNav() {
     var nav = CONFIG.nav || {};
     var prev = $('btnPrev');
     var next = $('btnNext');
-    var isLast = SCREEN_ORDER.indexOf(state.screen) === SCREEN_ORDER.length - 1;
+    var isLast = state.step >= STEPS.length - 1;
     prev.hidden = nav.showBack === false;
     next.hidden = nav.showNext === false || isLast;   // 마지막 화면에서는 '다음'을 감춘다
     prev.disabled = !canGoPrev();
@@ -345,53 +360,36 @@
 
   function goNext() {
     if (!canGoNext()) return;
-    var i = SCREEN_ORDER.indexOf(state.screen);
-    if (i < 0 || i >= SCREEN_ORDER.length - 1) return;
-    enter(SCREEN_ORDER[i + 1], false);
+    enterStep(state.step + 1, false);
   }
 
   function goPrev() {
     if (!canGoPrev()) return;
-    var i = SCREEN_ORDER.indexOf(state.screen);
-    if (i <= 0) return;
-    enter(SCREEN_ORDER[i - 1], true);
+    enterStep(state.step - 1, true);
   }
 
   /**
-   * 화면 진입
+   * 단계 진입
    * @param {boolean} backwards 뒤로 이동인지 (뒤로 갈 때는 사다리 결과를 유지)
    */
-  function enter(name, backwards) {
-    clearAutoStart();
-    if (state.screen === 'ending') clearAutoRestart();
+  function enterStep(index, backwards) {
+    if (index < 0 || index >= STEPS.length) return;
 
-    if (name === 'quiz') {
-      showScreen('quiz');
-      renderQuiz();          // 들어올 때마다 문제를 처음 상태로
-      return;
-    }
-    if (name === 'prize') {
-      showScreen('prize');
-      renderPrizes();
-      return;
-    }
-    if (name === 'reveal') {
-      showScreen('reveal');
-      renderReveal();
-      return;
-    }
-    if (name === 'ladder') {
-      showScreen('ladder');
-      if (!backwards) renderLadder();       // 앞으로 진입할 때만 새 사다리 + 자동 시작
-      else if (ladderView) requestAnimationFrame(function () { ladderView.render(); });
-      return;
-    }
-    if (name === 'ending') {
-      showScreen('ending');
-      renderEnding();
-      return;
-    }
+    clearAutoStart();
+    if (currentScreen() === 'ending') clearAutoRestart();
+
+    state.step = index;
+    var name = STEPS[index];
     showScreen(name);
+
+    if (name === 'quiz') renderQuiz();          // 들어올 때마다 문제를 처음 상태로
+    else if (name === 'prize') renderPrizes();
+    else if (name === 'reveal') renderReveal();
+    else if (name === 'ending') renderEnding();
+    else if (name === 'ladder') {
+      if (!backwards) renderLadder();           // 앞으로 진입할 때만 새 사다리
+      else if (ladderView) requestAnimationFrame(function () { ladderView.render(); });
+    }
   }
 
   /* ============================= 1. 인트로 ============================== */
@@ -417,19 +415,34 @@
   }
 
   /* ============================== 2. 퀴즈 =============================== */
+  /** 이번 회차 문제. 한 번 뽑으면 오갈 때 바뀌지 않는다. */
+  function currentQuestion() {
+    var round = currentRound();
+    if (state.quizPicks[round]) return state.quizPicks[round];
+
+    var rounds = (CONFIG.quiz && CONFIG.quiz.rounds) || [];
+    var pool = rounds[round] || rounds[rounds.length - 1] || [];
+    var picked = pool[Math.floor(Math.random() * pool.length)] || pool[0] || {
+      question: '', choices: [], answerIndex: 0
+    };
+    state.quizPicks[round] = picked;
+    return picked;
+  }
+
   function renderQuiz() {
     var c = CONFIG.quiz;
+    var q = currentQuestion();
     state.quizAnswered = false;
 
     $('quizEyebrow').textContent = c.eyebrow || 'QUIZ';
-    $('quizQuestion').textContent = c.question || '';
+    $('quizQuestion').textContent = q.question || '';
     $('quizFeedback').hidden = true;
     $('btnQuizNext').hidden = true;
     $('btnQuizNext').textContent = c.nextLabel || '다음';
 
     var list = $('quizChoices');
     list.innerHTML = '';
-    (c.choices || []).forEach(function (text, index) {
+    (q.choices || []).forEach(function (text, index) {
       var li = el('li', 'choices__item');
       var btn = el('button', 'choice');
       btn.type = 'button';
@@ -444,16 +457,17 @@
 
   function onQuizAnswer(index, btn) {
     var c = CONFIG.quiz;
+    var q = currentQuestion();
     if (state.quizAnswered) return;
 
     var feedback = $('quizFeedback');
 
-    if (index === c.answerIndex) {
+    if (index === q.answerIndex) {
       state.quizAnswered = true;
       btn.classList.add('is-correct');
       disableChoices();
       $('quizFeedbackTitle').textContent = c.correctTitle || '정답이에요!';
-      $('quizFeedbackDesc').textContent = c.correctDesc || '';
+      $('quizFeedbackDesc').textContent = q.correctDesc || '';
       feedback.className = 'feedback feedback--correct';
       feedback.hidden = false;
       $('btnQuizNext').hidden = false;
@@ -471,9 +485,9 @@
     } else {
       state.quizAnswered = true;                 // 한 번에 판정 → 정답 알려주고 진행
       disableChoices();
-      var answerBtn = $('quizChoices').querySelector('[data-index="' + c.answerIndex + '"]');
+      var answerBtn = $('quizChoices').querySelector('[data-index="' + q.answerIndex + '"]');
       if (answerBtn) answerBtn.classList.add('is-correct');
-      $('quizFeedbackDesc').textContent = c.correctDesc || c.wrongDesc || '';
+      $('quizFeedbackDesc').textContent = q.correctDesc || c.wrongDesc || '';
       $('btnQuizNext').hidden = false;
     }
   }
@@ -485,13 +499,14 @@
   /* ====================== 3. 상자 선택 (이름 비공개) ==================== */
   function renderPrizes() {
     var c = CONFIG.prizeScreen || {};
-    state.prizeIndex = null;
+    var round = currentRound();
+    var chosen = state.prizePicks[round];
 
     $('prizeEyebrow').textContent = c.eyebrow || 'PRIZE';
     $('prizeHeading').textContent = c.heading || '상자 하나를 골라주세요';
     $('prizeSubheading').textContent = c.subheading || '';
     $('btnPrizeNext').textContent = c.nextLabel || '선택 완료';
-    $('btnPrizeNext').disabled = true;
+    $('btnPrizeNext').disabled = chosen == null;
 
     var list = $('prizeList');
     list.innerHTML = '';
@@ -507,6 +522,7 @@
       btn.setAttribute('data-index', String(index));
       btn.disabled = soldOut;
       btn.classList.toggle('is-soldout', soldOut);
+      btn.classList.toggle('is-selected', chosen === index);
 
       btn.appendChild(makePrizeIcon(prize));
       if (prize.lead) btn.appendChild(el('span', 'prize__lead', prize.lead));
@@ -558,7 +574,7 @@
     var prize = CONFIG.prizes[index];
     if (!prize || Stock.isSoldOut(prize)) return;
 
-    state.prizeIndex = index;
+    state.prizePicks[currentRound()] = index;
     each($('prizeList').querySelectorAll('.prize'), function (b) {
       b.classList.toggle('is-selected', b.getAttribute('data-index') === String(index));
     });
@@ -568,14 +584,15 @@
 
   /* ====================== 4. 상품 공개 (짜잔!) ========================= */
   function currentPrize() {
-    return CONFIG.prizes[state.prizeIndex] || CONFIG.prizes[0];
+    return CONFIG.prizes[state.prizePicks[currentRound()]] || CONFIG.prizes[0];
   }
 
   function renderReveal() {
     var c = CONFIG.reveal || {};
     var prize = currentPrize();
 
-    state.result = {
+    var round = currentRound();
+    state.results[round] = {
       id: prize.id,
       name: prize.name || '',
       emoji: prize.emoji || '',
@@ -585,10 +602,11 @@
       qrImage: prize.qrImage || ''
     };
 
-    // 수량은 상품이 공개되는 이 시점에 1개 줄어든다 (같은 상자를 다시 봐도 한 번만)
-    if (state.consumedFor !== state.prizeIndex) {
+    // 수량은 선물이 공개되는 이 시점에 1개 줄어든다 (같은 상자를 다시 봐도 한 번만)
+    var picked = state.prizePicks[round];
+    if (state.consumedFor[round] !== picked) {
       Stock.consume(prize);
-      state.consumedFor = state.prizeIndex;
+      state.consumedFor[round] = picked;
     }
 
     $('revealLead').textContent = c.lead || '짜잔! 🎉';
@@ -828,11 +846,14 @@
     $('btnRestart').textContent = c.restartLabel || '처음으로';
 
     var prizeCard = $('endingPrizeCard');
-    if (c.showPrizeQr && state.result && state.result.qrImage) {
+    var won = null;
+    for (var i = state.results.length - 1; i >= 0; i--) {
+      if (state.results[i] && state.results[i].qrImage) { won = state.results[i]; break; }
+    }
+    if (c.showPrizeQr && won) {
       $('endingPrizeLabel').textContent = c.prizeLabel || '내가 받은 선물';
-      fillBox($('endingPrizeQr'), state.result.qrImage, state.result.name + ' QR 코드');
-      $('endingPrizeCaption').textContent =
-        (state.result.emoji ? state.result.emoji + ' ' : '') + state.result.name;
+      fillBox($('endingPrizeQr'), won.qrImage, won.name + ' QR 코드');
+      $('endingPrizeCaption').textContent = (won.emoji ? won.emoji + ' ' : '') + won.name;
       prizeCard.hidden = false;
     } else {
       prizeCard.hidden = true;
@@ -893,9 +914,11 @@
     clearAutoStart();
     if (ladderView) ladderView.reset();
     resetMerge();
-    state.prizeIndex = null;
-    state.result = null;
-    state.consumedFor = null;
+    state.step = 0;
+    state.quizPicks = [];
+    state.prizePicks = [];
+    state.results = [];
+    state.consumedFor = {};
     state.arrived = false;
     state.running = false;
     renderQuiz();
