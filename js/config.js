@@ -153,6 +153,13 @@ var CONFIG = {
       '건강', '연애·결혼', '직장', '가족구원', '인간관계'
     ],
     coverLabel: '?',                            // 가려진 아래칸에 적힐 글자
+    headImages: [                               // 위쪽 칸 아래에 붙는 이미지 (assets/ladder/)
+      'assets/ladder/1.png',
+      'assets/ladder/2.png',
+      'assets/ladder/3.png',
+      'assets/ladder/4.png',
+      'assets/ladder/5.png'
+    ],
     colors: [                                   // 포스터 색으로 맞춘 원 5개의 색깔
       '#DE5B6B', '#EE9C46', '#A79FD4', '#3E8A5F', '#7BA7D7'
     ],

@@ -53,6 +53,7 @@ js/app.js             화면 전환, 수량 관리, 전체 흐름
 assets/prize/         ★ 선물 사진 6장 (짜잔 화면용)
 assets/qr/            컨퍼런스 신청폼 QR
 assets/ending/        엔딩 화면 사진
+assets/ladder/        사다리 칸 이미지 5장
 ```
 
 ---
@@ -119,6 +120,7 @@ prizes: [
 | `reveal` | 짜잔 화면 문구 (`짜잔! 🎉`, 다음 버튼) |
 | `form` | **사다리 도착 지점 = 컨퍼런스 신청폼** (제목 · QR 이미지 · 안내 문구) |
 | `stock` | 수량 저장 사용 여부, 저장 이름, 톱니바퀴 숨김(`hideButton`) |
+| `ladder.headLabels` / `headImages` | 위쪽 다섯 칸의 문구와 이미지 |
 | `ladder.colors` | 내려가는 원 5개의 색깔 |
 | `ladder.tailLength` | 원 뒤에 남는 잔상 길이(px) |
 | `ladder.autoStart` | 기본은 `false`(스타트 버튼으로 시작). `true` 로 바꾸면 화면에 들어오는 순간 자동으로 출발합니다 |

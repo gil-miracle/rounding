@@ -35,7 +35,7 @@
   --maxw:        820px;
   --topbar-h:    64px;
   --qr-size:     280px;
-  --foot-h:      132px;
+  --foot-h:      72px;
 }
 
 /* 아이폰 등 좁은 화면에서는 축소 */
@@ -47,7 +47,7 @@
     --pad: 20px;
     --topbar-h: 52px;
     --qr-size: 200px;
-    --foot-h: 92px;
+    --foot-h: 54px;
   }
 }
 
@@ -650,7 +650,7 @@ button:focus-visible {
    번호줄은 높이가 내용에 따라 정해지므로 max-height 로 접는다. */
 .ladder__heads {
   overflow: hidden;
-  max-height: 200px;
+  max-height: 420px;
   transition: opacity .28s ease, max-height .55s cubic-bezier(.22, .78, .3, 1), margin .55s;
 }
 .ladder__board {
@@ -681,18 +681,37 @@ button:focus-visible {
   border-radius: 14px;
   background: linear-gradient(155deg, #4e9a63 0%, var(--c-cover) 55%, #204f33 100%);
   box-shadow: var(--shadow);
+}
+
+/* 위쪽 칸 아래에 붙는 이미지 — 잘리지 않게 전체가 들어간다 */
+.lanepic {
+  margin-bottom: clamp(6px, 1vw, 10px);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--c-tint);
+}
+.lanepic__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.ladder__feet .ladder__cell {
   transition: transform .5s cubic-bezier(.55, 0, .25, 1), opacity .34s ease .16s;
   will-change: transform;
 }
 
 .foot__cover-text {
-  font-size: clamp(22px, 3.4vw, 32px);
+  font-size: clamp(18px, 2.6vw, 26px);
   font-weight: 900;
   color: rgba(255, 255, 255, .9);
 }
 
 /* 다섯 칸이 가운데로 모여 사라진다 */
-.ladder__feet.is-merging .foot {
+.ladder__feet.is-merging .ladder__cell {
   transform: translateX(var(--dx, 0)) scale(.9);
   opacity: 0;
 }

@@ -643,7 +643,11 @@
       head.style.setProperty('--lane-color', colors[i % colors.length]);
       head.appendChild(el('span', 'head__label',
         (conf.headLabels && conf.headLabels[i]) || String(i + 1)));
+
+      var picSrc = conf.headImages && conf.headImages[i];
+      if (picSrc) cell.appendChild(makeLanePic(picSrc));   // 사진이 위, 글자가 아래
       cell.appendChild(head);
+
       heads.appendChild(cell);
     }
 
@@ -686,6 +690,17 @@
       clearAutoStart();
       autoStartTimer = setTimeout(startLadder, conf.autoStartDelayMs || 800);
     }
+  }
+
+  /** 위쪽 칸 아래에 붙는 이미지 (파일이 없으면 조용히 사라진다) */
+  function makeLanePic(src) {
+    var box = el('div', 'lanepic');
+    var img = el('img', 'lanepic__img');
+    img.alt = '';
+    img.addEventListener('error', function () { box.hidden = true; });
+    img.src = src;
+    box.appendChild(img);
+    return box;
   }
 
   /** 위쪽 번호칸의 실제 중심 x좌표를 재서 사다리 기둥 위치로 사용 */
@@ -740,12 +755,12 @@
     // 각 칸이 가운데로 모이도록 이동 거리 계산
     var areaRect = area.getBoundingClientRect();
     var centerX = areaRect.width / 2;
-    var feet = feetRow.querySelectorAll('.foot');
-    each(feet, function (f, i) {
-      var r = f.getBoundingClientRect();
+    var cells = feetRow.querySelectorAll('.ladder__cell');
+    each(cells, function (cell, i) {
+      var r = cell.getBoundingClientRect();
       var cx = r.left + r.width / 2 - areaRect.left;
-      f.style.setProperty('--dx', Math.round(centerX - cx) + 'px');
-      f.style.transitionDelay = Math.round(Math.abs(i - (feet.length - 1) / 2) * 45) + 'ms';
+      cell.style.setProperty('--dx', Math.round(centerX - cx) + 'px');
+      cell.style.transitionDelay = Math.round(Math.abs(i - (cells.length - 1) / 2) * 45) + 'ms';
     });
 
     requestAnimationFrame(function () {
@@ -789,9 +804,9 @@
     area.style.height = '';
     area.classList.remove('is-merged');
     feetRow.classList.remove('is-merging');
-    each(feetRow.querySelectorAll('.foot'), function (f) {
-      f.style.removeProperty('--dx');
-      f.style.transitionDelay = '';
+    each(feetRow.querySelectorAll('.ladder__cell'), function (cell) {
+      cell.style.removeProperty('--dx');
+      cell.style.transitionDelay = '';
     });
 
     merge.hidden = true;
