@@ -180,8 +180,12 @@
   /** 경로별 좌표·길이·엘리먼트 묶음 만들기 */
   LadderView.prototype._buildLines = function () {
     var lines = [];
+    var steps = this.tailSteps();
 
     for (var lane = 0; lane < this.lanes; lane++) {
+      var count = this.countOf(lane);
+      if (count <= 0) continue;
+
       var pts = this.points(lane);
       var cum = [0];
       var total = 0;
@@ -194,42 +198,67 @@
 
       var color = this.colorOf(lane);
 
-      // 잔상 조각 (머리에서 먼 쪽일수록 흐리게)
-      var tails = [];
-      for (var t = TAIL_STEPS - 1; t >= 0; t--) {
-        var seg = document.createElementNS(SVG_NS, 'path');
-        seg.setAttribute('class', 'ladder__tail');
-        seg.setAttribute('fill', 'none');
-        seg.setAttribute('stroke', color);
-        seg.setAttribute('stroke-opacity', (0.62 * (1 - t / TAIL_STEPS)).toFixed(3));
-        seg.setAttribute('stroke-width', round(3 + 3 * (1 - t / TAIL_STEPS)));
-        seg.setAttribute('d', '');
-        this.gTrace.appendChild(seg);
-        tails[t] = seg;
+      for (var b = 0; b < count; b++) {
+        // 잔상 조각 (머리에서 먼 쪽일수록 흐리게)
+        var tails = [];
+        for (var t = steps - 1; t >= 0; t--) {
+          var seg = document.createElementNS(SVG_NS, 'path');
+          seg.setAttribute('class', 'ladder__tail');
+          seg.setAttribute('fill', 'none');
+          seg.setAttribute('stroke', color);
+          seg.setAttribute('stroke-opacity', (0.62 * (1 - t / steps)).toFixed(3));
+          seg.setAttribute('stroke-width', round(3 + 3 * (1 - t / steps)));
+          seg.setAttribute('d', '');
+          this.gTrace.appendChild(seg);
+          tails[t] = seg;
+        }
+
+        var glow = document.createElementNS(SVG_NS, 'circle');
+        glow.setAttribute('class', 'ladder__glow');
+        glow.setAttribute('r', 13);
+        glow.setAttribute('fill', color);
+        glow.setAttribute('fill-opacity', '.18');
+        glow.style.opacity = '0';
+        this.gTrace.appendChild(glow);
+
+        var head = document.createElementNS(SVG_NS, 'circle');
+        head.setAttribute('class', 'ladder__head-dot');
+        head.setAttribute('r', 7);
+        head.setAttribute('fill', color);
+        head.style.opacity = '0';
+        this.gTrace.appendChild(head);
+
+        lines.push({
+          pts: pts, cum: cum, total: total || 1,
+          order: b,                       // 같은 줄에서 몇 번째 공인지
+          tails: tails, glow: glow, head: head
+        });
       }
-
-      var glow = document.createElementNS(SVG_NS, 'circle');
-      glow.setAttribute('class', 'ladder__glow');
-      glow.setAttribute('r', 13);
-      glow.setAttribute('fill', color);
-      glow.setAttribute('fill-opacity', '.18');
-      glow.style.opacity = '0';
-      this.gTrace.appendChild(glow);
-
-      var head = document.createElementNS(SVG_NS, 'circle');
-      head.setAttribute('class', 'ladder__head-dot');
-      head.setAttribute('r', 7);
-      head.setAttribute('fill', color);
-      head.style.opacity = '0';
-      this.gTrace.appendChild(head);
-
-      lines.push({
-        pts: pts, cum: cum, total: total || 1,
-        tails: tails, glow: glow, head: head
-      });
     }
 
     return lines;
+  };
+
+  /** 이 줄에서 내려보낼 공 개수 */
+  LadderView.prototype.countOf = function (lane) {
+    if (!this.counts) return 1;
+    var n = this.counts[lane];
+    return (typeof n === 'number' && n >= 0) ? Math.floor(n) : 1;
+  };
+
+  /** 전체 공 개수 */
+  LadderView.prototype.ballCount = function () {
+    var sum = 0;
+    for (var i = 0; i < this.lanes; i++) sum += this.countOf(i);
+    return sum;
+  };
+
+  /** 공이 많으면 잔상 조각을 줄여 부드럽게 유지 */
+  LadderView.prototype.tailSteps = function () {
+    var n = this.ballCount();
+    if (n > 30) return 3;
+    if (n > 14) return 5;
+    return TAIL_STEPS;
   };
 
   /** 출발 칸의 경로 좌표 배열 */
@@ -283,16 +312,31 @@
 
   /** 진행도(0~1) 시점의 모습 그리기 */
   LadderView.prototype._drawAt = function (progress) {
+    var self = this;
+    this._drawEach(function () { return progress; });
+  };
+
+  /** 공마다 진행도를 따로 받아 그린다 */
+  LadderView.prototype._drawEach = function (progressOf) {
     var tail = this.tailLength;
+    var steps = this.tailSteps();
 
     for (var n = 0; n < this._lines.length; n++) {
       var L = this._lines[n];
-      var dist = L.total * progress;
+      var p = progressOf(L);
+      if (p <= 0) {                       // 아직 출발 전
+        L.glow.style.opacity = '0';
+        L.head.style.opacity = '0';
+        for (var k = 0; k < steps; k++) L.tails[k].setAttribute('d', '');
+        continue;
+      }
+
+      var dist = L.total * p;
       var here = pointAt(L, dist);
 
-      for (var t = 0; t < TAIL_STEPS; t++) {
-        var to = dist - (tail * t) / TAIL_STEPS;
-        var from = dist - (tail * (t + 1)) / TAIL_STEPS;
+      for (var t = 0; t < steps; t++) {
+        var to = dist - (tail * t) / steps;
+        var from = dist - (tail * (t + 1)) / steps;
         L.tails[t].setAttribute('d', subPath(L, from, to));
       }
 
@@ -312,19 +356,29 @@
     this._traceComplete = false;
     this.render();
 
+    var gap = this.ballGapMs || 150;          // 같은 줄 공 사이 간격
+    var maxOrder = 0;
+    for (var i = 0; i < this._lines.length; i++) {
+      if (this._lines[i].order > maxOrder) maxOrder = this._lines[i].order;
+    }
+    var span = duration + maxOrder * gap;
+
+    function ease(p) {
+      return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    }
+
     var startTime = null;
     function step(now) {
       if (startTime === null) startTime = now;
-      var progress = Math.min(1, (now - startTime) / duration);
+      var elapsed = now - startTime;
 
-      // 출발과 도착을 살짝 부드럽게
-      var eased = progress < 0.5
-        ? 2 * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+      self._drawEach(function (L) {
+        var p = (elapsed - L.order * gap) / duration;
+        if (p <= 0) return 0;
+        return ease(Math.min(1, p));
+      });
 
-      self._drawAt(eased);
-
-      if (progress < 1) {
+      if (elapsed < span) {
         self._raf = global.requestAnimationFrame(step);
       } else {
         self._raf = null;

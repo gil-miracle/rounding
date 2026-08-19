@@ -202,6 +202,10 @@ var CONFIG = {
       '#DE5B6B', '#EE9C46', '#A79FD4', '#3E8A5F', '#7BA7D7'
     ],
     tailLength: 90,                             // 원 뒤에 남는 잔상 길이(px)
+    defaultCount: 1,                            // 줄마다 처음 내려갈 공 개수
+    countMin: 0,                                // 이미지를 눌러 조절할 수 있는 범위
+    countMax: 10,
+    ballGapMs: 150,                             // 같은 줄에서 공 사이 간격(ms)
     autoStart: false,                           // false: 스타트 버튼을 눌러야 출발
                                                 // true : 화면에 들어오면 아무것도 안 눌러도 출발
     autoStartDelayMs: 800,                      // autoStart: true 일 때 출발까지 기다리는 시간(ms)

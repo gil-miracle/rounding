@@ -624,6 +624,8 @@ button:focus-visible {
 
 .ladder__cell { min-width: 0; }
 
+.ladder__heads .ladder__cell { --lane-color: var(--c-primary); }
+
 .head {
   display: grid;
   place-items: center;
@@ -696,21 +698,79 @@ button:focus-visible {
   box-shadow: var(--shadow);
 }
 
-/* 위쪽 칸 아래에 붙는 이미지 — 잘리지 않게 전체가 들어간다 */
+/* 위쪽 칸 아래에 붙는 이미지 — 잘리지 않게 전체가 들어간다.
+   이미지를 누르면 공 개수가 늘고, 왼쪽 아래 − 로 줄인다. */
 .lanepic {
+  position: relative;
   margin: 0 auto clamp(6px, 1vw, 10px);
   width: 98%;
   aspect-ratio: 1 / 1;
+  transition: opacity .2s;
+}
+.lanepic.is-zero { opacity: .4; }
+
+.lanepic__btn {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
   border-radius: 12px;
   overflow: hidden;
   background: var(--c-tint);
+  transition: transform .12s;
 }
+.lanepic__btn:active:not(:disabled) { transform: scale(.95); }
+.lanepic__btn:disabled { cursor: default; }
+
 .lanepic__img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
+  pointer-events: none;
 }
+
+/* 오른쪽 위 개수 */
+.lanepic__count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: clamp(22px, 3vw, 28px);
+  height: clamp(22px, 3vw, 28px);
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--lane-color, var(--c-primary));
+  color: #fff;
+  font-size: clamp(12px, 1.7vw, 15px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+
+/* 왼쪽 아래 빼기 */
+.lanepic__minus {
+  position: absolute;
+  left: -6px;
+  bottom: -6px;
+  width: clamp(22px, 3vw, 28px);
+  height: clamp(22px, 3vw, 28px);
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  color: var(--c-muted);
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: var(--shadow);
+  transition: opacity .2s, transform .12s;
+}
+.lanepic__minus:active:not(:disabled) { transform: scale(.9); }
+.lanepic__minus:disabled { opacity: .3; }
 
 .ladder__feet .ladder__cell {
   transition: transform .5s cubic-bezier(.55, 0, .25, 1), opacity .34s ease .16s;

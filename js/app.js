@@ -298,6 +298,7 @@
     prizePicks: [],      // 회차별로 고른 상자 번호
     results: [],         // 회차별로 공개된 선물
     consumedFor: {},     // 회차별로 수량을 차감한 상자 번호
+    laneCounts: [],      // 사다리 줄별로 내려보낼 공 개수
     arrived: false,      // 사다리가 도착해 신청폼이 공개됐는지
     running: false       // 사다리 진행 중
   };
@@ -682,6 +683,12 @@
     state.arrived = false;
     state.running = false;
 
+    var range = countRange();
+    var def = typeof conf.defaultCount === 'number' ? conf.defaultCount : 1;
+    def = Math.max(range.min, Math.min(range.max, def));
+    state.laneCounts = [];
+    for (var n = 0; n < lanes; n++) state.laneCounts.push(def);
+
     $('ladderEyebrow').textContent = conf.eyebrow || 'LADDER';
     $('ladderHeading').textContent = conf.heading || '';
     $('ladderSubheading').textContent = conf.subheading || '';
@@ -699,13 +706,14 @@
     heads.style.setProperty('--lanes', lanes);
     for (var i = 0; i < lanes; i++) {
       var cell = el('div', 'ladder__cell');
+      cell.style.setProperty('--lane-color', colors[i % colors.length]);
       var head = el('div', 'head');
       head.style.setProperty('--lane-color', colors[i % colors.length]);
       head.appendChild(el('span', 'head__label',
         (conf.headLabels && conf.headLabels[i]) || String(i + 1)));
 
       var picSrc = conf.headImages && conf.headImages[i];
-      if (picSrc) cell.appendChild(makeLanePic(picSrc));   // 사진이 위, 글자가 아래
+      if (picSrc) cell.appendChild(makeLanePic(picSrc, i));   // 사진이 위, 글자가 아래
       cell.appendChild(head);
 
       heads.appendChild(cell);
@@ -740,9 +748,14 @@
     ladderView.rows = conf.rows;
     ladderView.colors = colors;
     ladderView.tailLength = conf.tailLength || 80;
+    ladderView.ballGapMs = conf.ballGapMs || 150;
+    ladderView.counts = state.laneCounts.slice();
     ladderView.generate();
 
-    requestAnimationFrame(function () { ladderView.render(); });
+    requestAnimationFrame(function () {
+      ladderView.render();
+      syncLaneCounts();
+    });
     updateNav();
 
     /* 아무것도 누르지 않아도 잠시 뒤 자동으로 출발 */
@@ -752,15 +765,72 @@
     }
   }
 
-  /** 위쪽 칸 아래에 붙는 이미지 (파일이 없으면 조용히 사라진다) */
-  function makeLanePic(src) {
+  /**
+   * 위쪽 칸의 이미지 + 공 개수 조절.
+   * 이미지를 누르면 1개씩 늘고, 왼쪽 아래 − 를 누르면 줄어듭니다.
+   */
+  function makeLanePic(src, lane) {
     var box = el('div', 'lanepic');
+
+    var btn = el('button', 'lanepic__btn');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', '공 개수 늘리기');
     var img = el('img', 'lanepic__img');
     img.alt = '';
-    img.addEventListener('error', function () { box.hidden = true; });
+    img.addEventListener('error', function () { btn.classList.add('is-blank'); });
     img.src = src;
-    box.appendChild(img);
+    btn.appendChild(img);
+    btn.addEventListener('click', function () { bumpLane(lane, +1); });
+    box.appendChild(btn);
+
+    var minus = el('button', 'lanepic__minus', '−');
+    minus.type = 'button';
+    minus.setAttribute('aria-label', '공 개수 줄이기');
+    minus.addEventListener('click', function () { bumpLane(lane, -1); });
+    box.appendChild(minus);
+
+    box.appendChild(el('span', 'lanepic__count', '1'));
     return box;
+  }
+
+  function countRange() {
+    var conf = CONFIG.ladder || {};
+    return {
+      min: typeof conf.countMin === 'number' ? conf.countMin : 0,
+      max: typeof conf.countMax === 'number' ? conf.countMax : 10
+    };
+  }
+
+  function bumpLane(lane, delta) {
+    if (state.running || state.arrived) return;
+    var r = countRange();
+    var next = (state.laneCounts[lane] || 0) + delta;
+    state.laneCounts[lane] = Math.max(r.min, Math.min(r.max, next));
+    syncLaneCounts();
+  }
+
+  /** 화면의 숫자 표시와 사다리 뷰를 현재 개수에 맞춘다 */
+  function syncLaneCounts() {
+    var r = countRange();
+    each($('ladderHeads').querySelectorAll('.ladder__cell'), function (cell, i) {
+      var n = state.laneCounts[i] || 0;
+      var badge = cell.querySelector('.lanepic__count');
+      if (badge) badge.textContent = String(n);
+      var pic = cell.querySelector('.lanepic');
+      if (pic) pic.classList.toggle('is-zero', n === 0);
+      var minus = cell.querySelector('.lanepic__minus');
+      if (minus) minus.disabled = n <= r.min;
+      var plus = cell.querySelector('.lanepic__btn');
+      if (plus) plus.disabled = n >= r.max;
+    });
+
+    if (ladderView) {
+      ladderView.counts = state.laneCounts.slice();
+      if (!state.running && !state.arrived) ladderView.render();
+    }
+
+    var total = state.laneCounts.reduce(function (a, b) { return a + (b || 0); }, 0);
+    $('btnLadderStart').disabled = total === 0;   // 공이 하나도 없으면 출발 불가
   }
 
   /** 위쪽 번호칸의 실제 중심 x좌표를 재서 사다리 기둥 위치로 사용 */
@@ -789,6 +859,7 @@
     state.running = true;
     $('btnLadderStart').disabled = true;
     $('ladder').classList.add('is-running');
+    each($('ladderHeads').querySelectorAll('button'), function (b) { b.disabled = true; });
     updateNav();
 
     ladderView.trace(conf.traceMs || 2600, function () {
