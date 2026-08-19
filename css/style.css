@@ -705,11 +705,14 @@ button:focus-visible {
   margin: 0 auto clamp(6px, 1vw, 10px);
   width: 98%;
   aspect-ratio: 1 / 1;
+  z-index: 2;                 /* 옆 칸 이미지에 가리지 않도록 */
   transition: opacity .2s;
 }
 .lanepic.is-zero { opacity: .4; }
 
 .lanepic__btn {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -733,8 +736,8 @@ button:focus-visible {
 /* 오른쪽 위 개수 */
 .lanepic__count {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: 5px;
+  right: 5px;
   min-width: clamp(22px, 3vw, 28px);
   height: clamp(22px, 3vw, 28px);
   padding: 0 5px;
@@ -748,13 +751,14 @@ button:focus-visible {
   font-variant-numeric: tabular-nums;
   box-shadow: var(--shadow);
   pointer-events: none;
+  z-index: 4;
 }
 
 /* 왼쪽 아래 빼기 */
 .lanepic__minus {
   position: absolute;
-  left: -6px;
-  bottom: -6px;
+  left: 5px;
+  bottom: 5px;
   width: clamp(22px, 3vw, 28px);
   height: clamp(22px, 3vw, 28px);
   display: grid;
@@ -767,10 +771,17 @@ button:focus-visible {
   font-weight: 800;
   line-height: 1;
   box-shadow: var(--shadow);
+  z-index: 4;                 /* 항상 맨 앞 */
   transition: opacity .2s, transform .12s;
 }
 .lanepic__minus:active:not(:disabled) { transform: scale(.9); }
-.lanepic__minus:disabled { opacity: .3; }
+
+/* 공이 0개면 숨겼다가, 1개 이상이 되면 나타난다 */
+.lanepic.is-zero .lanepic__minus {
+  opacity: 0;
+  transform: scale(.5);
+  pointer-events: none;
+}
 
 .ladder__feet .ladder__cell {
   transition: transform .5s cubic-bezier(.55, 0, .25, 1), opacity .34s ease .16s;

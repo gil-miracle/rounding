@@ -752,6 +752,7 @@
     ladderView.counts = state.laneCounts.slice();
     ladderView.generate();
 
+    syncLaneCounts();                       // 숫자·버튼 상태를 바로 맞춘다
     requestAnimationFrame(function () {
       ladderView.render();
       syncLaneCounts();
@@ -789,7 +790,7 @@
     minus.addEventListener('click', function () { bumpLane(lane, -1); });
     box.appendChild(minus);
 
-    box.appendChild(el('span', 'lanepic__count', '1'));
+    box.appendChild(el('span', 'lanepic__count', String(state.laneCounts[lane] || 0)));
     return box;
   }
 
