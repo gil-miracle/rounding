@@ -105,8 +105,9 @@
       return !CONFIG.stock || CONFIG.stock.enabled !== false;
     },
 
-    /** config.js 에 적힌 원래 수량 (없으면 null = 무제한) */
+    /** config.js 에 적힌 원래 수량 (없거나 기능이 꺼져 있으면 null = 무제한) */
     configTotal: function (prize) {
+      if (!this.enabled()) return null;
       return toCount(prize.stock);
     },
 

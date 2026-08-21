@@ -54,8 +54,8 @@ var CONFIG = {
           choices: [
             '재윤 목사님댁',
             'ACTS29 비전 빌리지',
-            '전도사님 자취방',
-            '대학로 한성아트홀'
+            '전도사님 기숙사',
+            'here and now'
           ],
           answerIndex: 1,
           correctDesc: '양지 온누리교회 ACTS29 비전 빌리지에서 만나요!'
@@ -172,9 +172,14 @@ var CONFIG = {
    *     예) index.html?reset=1
    * ------------------------------------------------------------------------ */
   stock: {
-    enabled: true,
-    storageKey: 'miracle-rounding-stock-v1',
-    hideButton: false                           // true 로 두면 첫 화면의 톱니바퀴를 숨깁니다
+    // false 로 두면 수량 제한을 아예 쓰지 않습니다.
+    //   · 상자에 남은 개수 / 품절 표시가 사라지고
+    //   · 첫 화면 톱니바퀴(수량 관리)도 숨겨집니다.
+    //   · 앞 회차에서 고른 상자를 다시 못 고르는 것은 그대로 동작합니다.
+    // 다시 쓰려면 enabled 와 hideButton 을 true / false 로 바꾸세요.
+    enabled: false,
+    hideButton: true,
+    storageKey: 'miracle-rounding-stock-v1'
   },
 
   /* ---------------------------------------------------------------------------

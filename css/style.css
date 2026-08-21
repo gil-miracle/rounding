@@ -270,8 +270,23 @@ button:focus-visible {
   color: var(--c-primary);
 }
 
+/* 포스터 워드마크 서체.
+   기기에 설치돼 있으면 그걸 쓰고, 없으면 assets/font/ 의 파일을 불러옵니다.
+   둘 다 없으면 기본 굵은 고딕으로 대체됩니다. */
+@font-face {
+  font-family: 'BD Plakatbau';
+  src: local('BD Plakatbau'),
+       local('BDPlakatbau'),
+       url('../assets/font/bd-plakatbau.woff2') format('woff2'),
+       url('../assets/font/bd-plakatbau.woff') format('woff'),
+       url('../assets/font/bd-plakatbau.otf') format('opentype');
+  font-weight: normal;
+  font-display: swap;
+}
+
 /* 포스터의 MIRACLE 워드마크 느낌 — 굵고 촘촘하게 */
 .intro__title {
+  font-family: 'BD Plakatbau', 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
   margin: 0 0 16px;
   font-size: clamp(52px, 15vw, 128px);
   font-weight: 900;
