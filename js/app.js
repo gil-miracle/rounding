@@ -403,7 +403,18 @@
       logo.src = c.logo;
       logo.hidden = false;
     }
+    // 배경 그림
+    var screen = $('screen-intro');
+    if (c.background) {
+      screen.style.backgroundImage = 'url("' + c.background + '")';
+      screen.classList.add('has-bg');
+    } else {
+      screen.style.backgroundImage = '';
+      screen.classList.remove('has-bg');
+    }
+
     $('introEyebrow').textContent = c.eyebrow || '';
+    $('introEyebrow').hidden = c.showEyebrow === false || !c.eyebrow;
     var title = $('introTitle');
     title.innerHTML = '';
     if (c.titleImage) {
@@ -419,6 +430,8 @@
       title.textContent = c.title || '';
     }
     $('introSubtitle').textContent = c.subtitle || '';
+    $('introSubtitle').hidden = c.showSubtitle === false || !c.subtitle;
+    $('introTitle').hidden = c.showTitle === false;
 
     var meta = $('introMeta');
     meta.innerHTML = '';

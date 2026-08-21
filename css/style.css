@@ -260,6 +260,17 @@ button:focus-visible {
     linear-gradient(180deg, var(--c-sky) 0%, rgba(252, 231, 228, .45) 32%, var(--c-bg) 62%);
 }
 
+/* 배경 그림을 넣었을 때 — 화면을 꽉 채우고 가운데를 기준으로 잘라낸다 */
+#screen-intro.has-bg {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+/* 그림 위 글자가 묻히지 않도록 아래쪽만 살짝 어둡게 */
+#screen-intro.has-bg .screen__footer {
+  background: linear-gradient(to top, rgba(43, 39, 35, .38) 55%, rgba(43, 39, 35, 0));
+}
+
 .intro__logo { width: clamp(92px, 16vw, 140px); height: auto; margin-bottom: 24px; }
 
 .intro__eyebrow {
