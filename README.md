@@ -61,7 +61,8 @@ assets/qr/            컨퍼런스 신청폼 QR
 assets/ending/        엔딩 화면 사진
 assets/ladder/        사다리 칸 이미지 5장
 assets/icon/          파비콘 (탭 아이콘 · 홈 화면 아이콘)
-assets/font/          첫 화면 제목 서체 (BD Plakatbau)
+assets/wordmark/      첫 화면 MIRACLE 제목 (포스터 서체를 도형으로 변환)
+assets/font/          제목 대체 서체
 ```
 
 ---

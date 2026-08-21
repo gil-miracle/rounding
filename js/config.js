@@ -11,6 +11,8 @@ var CONFIG = {
     logo: '',                                   // 예: 'assets/logo.png' (비워두면 표시 안 함)
     eyebrow: '2026 GIL COMMUNITY CONFERENCE',
     title: 'MIRACLE',
+    // 제목을 글자 대신 이미지로 보여줍니다. ''로 비우면 위 title 글자가 나옵니다.
+    titleImage: 'assets/wordmark/miracle.svg',
     subtitle: '퀴즈 풀고 선물 받아가세요!',
     // 일시·장소가 퀴즈 정답이라 첫 화면에서는 숨겨둡니다.
     // 다시 보여주려면 아래 배열에 { term: '일시', desc: '...' } 형태로 넣으세요.

@@ -404,7 +404,20 @@
       logo.hidden = false;
     }
     $('introEyebrow').textContent = c.eyebrow || '';
-    $('introTitle').textContent = c.title || '';
+    var title = $('introTitle');
+    title.innerHTML = '';
+    if (c.titleImage) {
+      var wordmark = el('img', 'intro__title-img');
+      wordmark.alt = c.title || '';
+      wordmark.addEventListener('error', function () {   // 파일이 없으면 글자로 대체
+        title.innerHTML = '';
+        title.textContent = c.title || '';
+      });
+      wordmark.src = c.titleImage;
+      title.appendChild(wordmark);
+    } else {
+      title.textContent = c.title || '';
+    }
     $('introSubtitle').textContent = c.subtitle || '';
 
     var meta = $('introMeta');
@@ -562,10 +575,9 @@
       if (prize.lead) btn.appendChild(el('span', 'prize__lead', prize.lead));
       btn.appendChild(el('span', 'prize__name', prize.name || ''));
 
+      // 이미 고른 상자는 흐리게만 표시한다 (배지를 넣으면 칸 높이가 들쭉날쭉해짐)
       var total = Stock.totalOf(prize);
-      if (alreadyTaken && !soldOut) {
-        btn.appendChild(el('span', 'prize__stock', c.takenLabel || '이미 받았어요'));
-      } else if (total !== null) {
+      if (!alreadyTaken && total !== null) {
         var left = Stock.left(prize);
         btn.appendChild(el('span', 'prize__stock',
           soldOut ? (c.soldOutLabel || '품절') : (left + ' / ' + total)));

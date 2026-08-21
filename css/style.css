@@ -284,9 +284,19 @@ button:focus-visible {
   font-display: swap;
 }
 
+/* BD Plakatbau 는 유료라 파일을 넣기 전까지 쓰는 대체 서체.
+   무료(OFL) 라 파일을 함께 두고 쓰므로 인터넷 없이도 나옵니다. */
+@font-face {
+  font-family: 'Archivo Black';
+  src: url('../assets/font/archivo-black.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+
 /* 포스터의 MIRACLE 워드마크 느낌 — 굵고 촘촘하게 */
 .intro__title {
-  font-family: 'BD Plakatbau', 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  width: 100%;
+  font-family: 'BD Plakatbau', 'Archivo Black', 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
   margin: 0 0 16px;
   font-size: clamp(52px, 15vw, 128px);
   font-weight: 900;
@@ -294,6 +304,14 @@ button:focus-visible {
   letter-spacing: -.02em;
   color: var(--c-primary);
   word-break: keep-all;
+}
+
+.intro__title-img {
+  display: block;
+  width: clamp(240px, 76vw, 620px);
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
 }
 
 .intro__subtitle {
