@@ -10,11 +10,12 @@ var CONFIG = {
   intro: {
     // 첫 화면 전체 배경 이미지. 넣으면 기본 그라데이션 대신 이 그림이 깔립니다.
     // 권장: 1640 x 2460 px (2:3), assets/intro/ 에 넣어주세요.
-    background: '',
+    background: 'assets/intro/background.jpg',
     // 배경 그림 안에 이미 글자가 들어 있으면 아래를 false 로 바꿔 화면 글자를 끕니다.
-    showEyebrow: true,
-    showTitle: true,
-    showSubtitle: true,
+    // 지금은 배경에 다 들어 있어서 버튼만 남겨두었습니다.
+    showEyebrow: false,
+    showTitle: false,
+    showSubtitle: false,
 
     logo: '',                                   // 예: 'assets/logo.png' (비워두면 표시 안 함)
     eyebrow: '2026 GIL COMMUNITY CONFERENCE',

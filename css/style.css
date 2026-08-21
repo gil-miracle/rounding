@@ -263,7 +263,8 @@ button:focus-visible {
 /* 배경 그림을 넣었을 때 — 화면을 꽉 채우고 가운데를 기준으로 잘라낸다 */
 #screen-intro.has-bg {
   background-repeat: no-repeat;
-  background-position: center;
+  /* 위쪽(제목)이 잘리지 않도록 상단 기준. 남는 만큼 아래가 잘린다 */
+  background-position: center top;
   background-size: cover;
 }
 /* 그림 위 글자가 묻히지 않도록 아래쪽만 살짝 어둡게 */
