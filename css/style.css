@@ -112,10 +112,12 @@ button:focus-visible {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  color: #bda99e;
+  color: rgba(255, 255, 255, .88);
+  /* 배경 사진의 밝은 부분에서도 톱니가 보이게 */
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .45));
   transition: color .2s, background .2s, transform .3s;
 }
-.gear:hover { color: var(--c-primary); background: rgba(222, 91, 107, .10); transform: rotate(45deg); }
+.gear:hover { color: #fff; background: rgba(255, 255, 255, .18); transform: rotate(45deg); }
 .gear:active { transform: rotate(45deg) scale(.92); }
 
 .screen__body {
