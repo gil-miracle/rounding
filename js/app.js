@@ -224,9 +224,13 @@
       if (total === null) {
         fields.appendChild(el('span', 'stockrow__free', '수량 제한 없음'));
       } else {
-        fields.appendChild(makeCountField(prize.id, 'left', '남은', left));
+        var leftField = makeCountField(prize.id, 'left', '남은', left);
+        var totalField = makeCountField(prize.id, 'total', '전체', total);
+        fields.appendChild(leftField);
         fields.appendChild(el('span', 'stockrow__slash', '/'));
-        fields.appendChild(makeCountField(prize.id, 'total', '전체', total));
+        fields.appendChild(totalField);
+        linkCountFields(leftField.querySelector('.countfield__input'),
+                        totalField.querySelector('.countfield__input'));
       }
       row.appendChild(fields);
       list.appendChild(row);
@@ -248,6 +252,30 @@
     return wrap;
   }
 
+  /* 남은 개수는 전체보다 클 수 없고, 전체를 고치면 남은 개수도 따라 바뀐다 */
+  function linkCountFields(leftInput, totalInput) {
+    leftInput.max = totalInput.value;
+
+    totalInput.addEventListener('input', function () {
+      var total = readCount(totalInput);
+      leftInput.max = String(total);
+      leftInput.value = String(total);
+    });
+
+    leftInput.addEventListener('input', function () {
+      if (leftInput.value === '') return;          // 지우고 다시 쓰는 중이면 건드리지 않는다
+      var total = readCount(totalInput);
+      if (readCount(leftInput) > total) leftInput.value = String(total);
+    });
+  }
+
+  function readCount(input) {
+    var n = parseInt(input.value, 10);
+    if (isNaN(n) || n < 0) n = 0;
+    if (n > 999) n = 999;
+    return n;
+  }
+
   function openStockModal() {
     renderStockRows();
     $('stockModal').hidden = false;
@@ -263,11 +291,8 @@
     var values = {};
     each($('stockList').querySelectorAll('.countfield__input'), function (input) {
       var id = input.getAttribute('data-id');
-      var n = parseInt(input.value, 10);
-      if (isNaN(n) || n < 0) n = 0;
-      if (n > 999) n = 999;
       values[id] = values[id] || {};
-      values[id][input.getAttribute('data-field')] = n;
+      values[id][input.getAttribute('data-field')] = readCount(input);
     });
 
     CONFIG.prizes.forEach(function (prize) {
