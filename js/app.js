@@ -557,6 +557,7 @@
     $('prizeEyebrow').textContent = c.eyebrow || 'PRIZE';
     $('prizeHeading').textContent = c.heading || '상자 하나를 골라주세요';
     $('prizeSubheading').textContent = c.subheading || '';
+    $('prizeSubheading').hidden = !c.subheading;
     $('btnPrizeNext').textContent = c.nextLabel || '선택 완료';
     $('btnPrizeNext').disabled = chosen == null;
 
@@ -718,6 +719,7 @@
     $('ladderEyebrow').textContent = conf.eyebrow || 'LADDER';
     $('ladderHeading').textContent = conf.heading || '';
     $('ladderSubheading').textContent = conf.subheading || '';
+    $('ladderSubheading').hidden = !conf.subheading;
     $('btnLadderStart').textContent = conf.startLabel || '스타트';
     $('btnLadderStart').hidden = conf.autoStart !== false;   // 자동 시작이면 버튼 숨김
     $('btnLadderStart').disabled = false;
@@ -983,6 +985,7 @@
     var c = CONFIG.ending;
     $('endingTitle').textContent = c.title || '';
     $('endingMessage').textContent = c.message || '';
+    $('endingMessage').hidden = !c.message;
     $('btnRestart').textContent = c.restartLabel || '처음으로';
 
     var prizeCard = $('endingPrizeCard');
