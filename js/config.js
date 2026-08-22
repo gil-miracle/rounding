@@ -98,7 +98,7 @@ var CONFIG = {
     subheading: '',
     showStock: false,                           // true 면 상자에 '남은 개수 / 전체' 를 표시
     soldOutLabel: '품절',
-    takenLabel: '이미 받았어요',           // 다른 회차에서 이미 고른 상자
+    takenLabel: '받았어요',                 // 다른 회차에서 이미 고른 상자
     allSoldOutMessage: '준비된 선물이 모두 소진되었어요. 운영자에게 문의해 주세요.',
     nextLabel: '선택 완료'
   },

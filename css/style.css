@@ -506,25 +506,29 @@ button:focus-visible {
 
 .prize.is-taken { opacity: .5; box-shadow: none; background: #f2e9e2; }
 .prize.is-taken .prize__icon { filter: grayscale(.7); }
-.prize.is-taken .prize__stock { background: #e7dbd2; color: #a2918a; }
+.prize.is-taken .prize__badge { opacity: 1; }
 
-/* 품절은 카드 위쪽 모서리에 붙인다 — 자리를 차지하지 않아 칸 높이가 안 흔들린다 */
-.prize__soldout {
+/* 품절 · 이미 받음 표시는 카드 위쪽 모서리에 겹쳐 띄운다.
+   자리를 차지하지 않아 칸 높이가 흔들리지 않는다. */
+.prize__badge {
   position: absolute;
   top: 8px;
   right: 8px;
+  max-width: calc(100% - 16px);
   padding: 4px 10px;
   border-radius: 999px;
-  background: var(--c-wrong);
   color: #fff;
   font-size: clamp(11px, 1.5vw, 13px);
   font-weight: 800;
   letter-spacing: .02em;
+  white-space: nowrap;
   box-shadow: var(--shadow);
 }
+.prize__badge--soldout { background: var(--c-wrong); }
+.prize__badge--taken   { background: var(--c-muted); }
 
 .prize.is-soldout { opacity: .45; box-shadow: none; background: #f2e9e2; }
-.prize.is-soldout .prize__soldout { opacity: 1; }
+.prize.is-soldout .prize__badge { opacity: 1; }
 .prize.is-soldout .prize__icon { filter: grayscale(1); }
 .prize.is-soldout .prize__stock { background: #e7dbd2; color: #a2918a; }
 

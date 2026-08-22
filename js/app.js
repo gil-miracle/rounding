@@ -589,14 +589,14 @@
       if (prize.lead) btn.appendChild(el('span', 'prize__lead', prize.lead));
       btn.appendChild(el('span', 'prize__name', prize.name || ''));
 
-      // 이미 고른 상자는 흐리게만 표시한다 (배지를 넣으면 칸 높이가 들쭉날쭉해짐)
+      // 상태 표시는 카드 위 모서리에 겹쳐 띄운다 (칸 높이에 영향 없음)
       var total = Stock.totalOf(prize);
-      if (!alreadyTaken && total !== null) {
-        if (soldOut) {
-          btn.appendChild(el('span', 'prize__soldout', c.soldOutLabel || '품절'));
-        } else if (c.showStock) {          // 남은 개수는 설정을 켰을 때만 보여준다
-          btn.appendChild(el('span', 'prize__stock', Stock.left(prize) + ' / ' + total));
-        }
+      if (soldOut) {
+        btn.appendChild(el('span', 'prize__badge prize__badge--soldout', c.soldOutLabel || '품절'));
+      } else if (alreadyTaken) {
+        btn.appendChild(el('span', 'prize__badge prize__badge--taken', c.takenLabel || '이미 받았어요'));
+      } else if (total !== null && c.showStock) {   // 남은 개수는 설정을 켰을 때만
+        btn.appendChild(el('span', 'prize__stock', Stock.left(prize) + ' / ' + total));
       }
 
       btn.addEventListener('click', function () { selectPrize(index); });
