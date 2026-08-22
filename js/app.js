@@ -592,9 +592,11 @@
       // 이미 고른 상자는 흐리게만 표시한다 (배지를 넣으면 칸 높이가 들쭉날쭉해짐)
       var total = Stock.totalOf(prize);
       if (!alreadyTaken && total !== null) {
-        var left = Stock.left(prize);
-        btn.appendChild(el('span', 'prize__stock',
-          soldOut ? (c.soldOutLabel || '품절') : (left + ' / ' + total)));
+        if (soldOut) {
+          btn.appendChild(el('span', 'prize__stock', c.soldOutLabel || '품절'));
+        } else if (c.showStock) {          // 남은 개수는 설정을 켰을 때만 보여준다
+          btn.appendChild(el('span', 'prize__stock', Stock.left(prize) + ' / ' + total));
+        }
       }
 
       btn.addEventListener('click', function () { selectPrize(index); });

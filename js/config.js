@@ -96,6 +96,7 @@ var CONFIG = {
     eyebrow: 'GIFT',
     heading: '상품 한 개를 골라주세요',
     subheading: '',
+    showStock: false,                           // true 면 상자에 '남은 개수 / 전체' 를 표시
     soldOutLabel: '품절',
     takenLabel: '이미 받았어요',           // 다른 회차에서 이미 고른 상자
     allSoldOutMessage: '준비된 선물이 모두 소진되었어요. 운영자에게 문의해 주세요.',
@@ -121,37 +122,37 @@ var CONFIG = {
       lead: '메마른 영혼을 적시는 생명의',
       item: '참붕어빵',
       note: '생명수에서 갓 헤엄쳐 나온 붕어 한 마리 🐟',
-      image: 'assets/prize/water.jpg', qrImage: '', stock: 2 },
+      image: 'assets/prize/water.jpg', qrImage: '', stock: 10 },
 
     { id: 'fire', emoji: '🔥', name: '불', icon: '',
       lead: '차갑게 식어버린 마음을 태우는 성령의',
       item: '불닭맛 곤약 쫀드기',
       note: '은혜도 맵게, 마음도 뜨겁게 🔥',
-      image: 'assets/prize/fire.jpg', qrImage: '', stock: 2 },
+      image: 'assets/prize/fire.jpg', qrImage: '', stock: 10 },
 
     { id: 'wind', emoji: '🍃', name: '바람', icon: '',
       lead: '온몸을 스치는',
       item: '솜사탕',
       note: '후~ 불면 날아갈 듯 가벼운 구름 한 조각 ☁️',
-      image: 'assets/prize/wind.jpg', qrImage: '', stock: 2 },
+      image: 'assets/prize/wind.jpg', qrImage: '', stock: 10 },
 
     { id: 'earth', emoji: '🪨', name: '땅', icon: '',
       lead: '우리가 딛고 선 단단한',
       item: '석기시대 초콜릿',
       note: '구석기 유물 발굴 완료! 🦕',
-      image: 'assets/prize/earth.jpg', qrImage: '', stock: 2 },
+      image: 'assets/prize/earth.jpg', qrImage: '', stock: 10 },
 
     { id: 'sky', emoji: '☁️', name: '하늘', icon: '',
       lead: '끝없이 높은',
       item: '별뽀빠이',
       note: '하늘에서 별 한 줌이 쏟아졌어요 ⭐',
-      image: 'assets/prize/sky.jpg', qrImage: '', stock: 2 },
+      image: 'assets/prize/sky.jpg', qrImage: '', stock: 10 },
 
     { id: 'light', emoji: '✨', name: '빛', icon: '',
       lead: '어두움을 밀어내는 환한',
       item: '아이셔',
       note: '한 입에 눈이 번쩍! 어둠이 확 물러갑니다 ✨',
-      image: 'assets/prize/light.jpg', qrImage: '', stock: 2 }
+      image: 'assets/prize/light.jpg', qrImage: '', stock: 10 }
   ],
 
   /* ---------------------------------------------------------------------------
@@ -183,13 +184,11 @@ var CONFIG = {
    *     예) index.html?reset=1
    * ------------------------------------------------------------------------ */
   stock: {
-    // false 로 두면 수량 제한을 아예 쓰지 않습니다.
-    //   · 상자에 남은 개수 / 품절 표시가 사라지고
-    //   · 첫 화면 톱니바퀴(수량 관리)도 숨겨집니다.
-    //   · 앞 회차에서 고른 상자를 다시 못 고르는 것은 그대로 동작합니다.
-    // 다시 쓰려면 enabled 와 hideButton 을 true / false 로 바꾸세요.
-    enabled: false,
-    hideButton: true,
+    // enabled: false 로 두면 수량 제한을 아예 쓰지 않습니다.
+    //   (남은 개수·품절 표시와 첫 화면 톱니바퀴가 모두 사라집니다)
+    // 남은 개수를 참여자에게 숨기려면 prizeScreen.showStock 을 false 로 두세요.
+    enabled: true,
+    hideButton: false,
     storageKey: 'miracle-rounding-stock-v1'
   },
 
