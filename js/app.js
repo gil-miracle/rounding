@@ -593,7 +593,7 @@
       var total = Stock.totalOf(prize);
       if (!alreadyTaken && total !== null) {
         if (soldOut) {
-          btn.appendChild(el('span', 'prize__stock', c.soldOutLabel || '품절'));
+          btn.appendChild(el('span', 'prize__soldout', c.soldOutLabel || '품절'));
         } else if (c.showStock) {          // 남은 개수는 설정을 켰을 때만 보여준다
           btn.appendChild(el('span', 'prize__stock', Stock.left(prize) + ' / ' + total));
         }

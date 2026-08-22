@@ -65,7 +65,7 @@ var CONFIG = {
           choices: [
             '재윤 목사님댁',
             'ACTS29 비전 빌리지',
-            '전도사님 기숙사',
+            '영찬 전도사님 기숙사',
             'here and now'
           ],
           answerIndex: 1,
