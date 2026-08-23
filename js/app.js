@@ -606,8 +606,8 @@
       btn.type = 'button';
       btn.setAttribute('data-index', String(index));
       btn.disabled = soldOut || alreadyTaken;
-      btn.classList.toggle('is-soldout', soldOut);
-      btn.classList.toggle('is-taken', alreadyTaken && !soldOut);
+      btn.classList.toggle('is-soldout', soldOut && !alreadyTaken);
+      btn.classList.toggle('is-taken', alreadyTaken);
       btn.classList.toggle('is-selected', chosen === index);
 
       btn.appendChild(makePrizeIcon(prize));
@@ -616,10 +616,10 @@
 
       // 상태 표시는 카드 위 모서리에 겹쳐 띄운다 (칸 높이에 영향 없음)
       var total = Stock.totalOf(prize);
-      if (soldOut) {
+      if (alreadyTaken) {                            // 품절이기도 하면 '받았어요' 쪽만 보여준다
+        btn.appendChild(el('span', 'prize__badge prize__badge--taken', c.takenLabel || '받았어요'));
+      } else if (soldOut) {
         btn.appendChild(el('span', 'prize__badge prize__badge--soldout', c.soldOutLabel || '품절'));
-      } else if (alreadyTaken) {
-        btn.appendChild(el('span', 'prize__badge prize__badge--taken', c.takenLabel || '이미 받았어요'));
       } else if (total !== null && c.showStock) {   // 남은 개수는 설정을 켰을 때만
         btn.appendChild(el('span', 'prize__stock', Stock.left(prize) + ' / ' + total));
       }
